@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">andTest</string>
+    <string name="hello">Hello there</string>
+    <string name="createAccount">Create an account</string>
+    <string name="login">Lets log in</string>
+    <string name="firstName">First name</string>
+    <string name="lastName">Last name</string>
+    <string name="password">Password</string>
+    <string name="email">Email</string>
+    <string name="passwordVisible">Password visible</string>
+    <string name="passwordHidden">Password hidden</string>
+</resources>
