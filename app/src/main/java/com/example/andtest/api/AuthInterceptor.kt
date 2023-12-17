@@ -1,11 +1,12 @@
 package com.example.andtest.api
 
+import android.content.Context
 import com.example.andtest.SecurePreferences
 import okhttp3.Interceptor
 import okhttp3.Response
 
-class AuthInterceptor(private val securePreferences: SecurePreferences) : Interceptor {
-
+class AuthInterceptor(private val context: Context) : Interceptor {
+    private val securePreferences= SecurePreferences.getInstance(context)
     override fun intercept(chain: Interceptor.Chain): Response {
         val original = chain.request()
 

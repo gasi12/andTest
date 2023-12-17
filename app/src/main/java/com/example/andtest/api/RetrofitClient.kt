@@ -8,18 +8,19 @@ import okhttp3.Authenticator
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.create
 
 const val BASE_URL ="http://192.168.1.87:8080/"
 
 object RetrofitClient {
-    fun getClient(context: Context, tokenAuthenticator: Authenticator): Retrofit {
-        val securePreferences = SecurePreferences.getInstance(context)
-        val authInterceptor = AuthInterceptor(securePreferences)
+    fun getClient(context: Context): Retrofit {
+
+
 
         val okHttpClient = OkHttpClient()
             .newBuilder()
-            .addInterceptor(authInterceptor)
-            .authenticator(tokenAuthenticator)
+            .addInterceptor(AuthInterceptor(context))
+            .authenticator(TokenAuthenticator(context))
             .build()
 
         return Retrofit.Builder()
@@ -27,5 +28,6 @@ object RetrofitClient {
             .baseUrl(BASE_URL)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
+
     }
 }

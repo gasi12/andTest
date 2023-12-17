@@ -1,12 +1,10 @@
 package com.example.andtest.screens
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -16,11 +14,12 @@ import androidx.compose.material3.Divider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -34,22 +33,25 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.andtest.R
-import com.example.andtest.api.AuthService
-import com.example.andtest.api.dto.LoginBody
+import com.example.andtest.api.service.MockService
 import com.example.andtest.components.BoldTextComponent
 import com.example.andtest.components.ButtonComponent
 import com.example.andtest.components.InputTextField
 import com.example.andtest.components.NormalTextComponent
 import com.example.andtest.components.PasswordField
+import com.example.andtest.viewModels.LoginScreenViewModel
 
 @Composable
-fun LoginScreen(navController: NavController) {
-    var loginError by remember { mutableStateOf("") }
+
+fun LoginScreen(navController: NavController, viewModel: LoginScreenViewModel) {
+
+    val navigateToHome by viewModel.navigateToHome
+    val loginError by viewModel.loginError.observeAsState("")
     val email = remember { mutableStateOf("") }
     val password = remember { mutableStateOf("") }
 
     val context = LocalContext.current
-    val authService = remember { AuthService(context,navController) }
+
 
     Surface(
     modifier = Modifier
@@ -74,25 +76,35 @@ fun LoginScreen(navController: NavController) {
                     .height(80.dp))
                 ButtonComponent(
                     labelValue = "BUTTON", onclick = {
-                        loginError=""
-                        val loginbody = LoginBody("${email.value}", "${password.value}")
-                        authService.successfulresponse(loginbody) { tokens, isSuccess ->
-                            if (isSuccess) {
-                 
+                        viewModel.login(email.value,password.value)
 
-                                navController.navigate("Home"){
-                                    popUpTo(navController.graph.id){
-                                        inclusive=true
-                                    }
-                                }
-                            }else{
-                            loginError="Invalid username or password!"
-                            }
-                            // Handle the tokens here if needed
-                        }
+//                        loginError=""
+//                        val loginbody = LoginBody("${email.value}", "${password.value}")
+//                        authService.successfulresponse(loginbody) { tokens, isSuccess ->
+//                            if (isSuccess) {
+//
+//
+//                                navController.navigate("Home"){
+//                                    popUpTo(navController.graph.id){
+//                                        inclusive=true
+//                                    }
+//                                }
+//                            }else{
+//                            loginError="Invalid username or password!"
+//                            }
+//                            // Handle the tokens here if needed
+//                        }
                     }
                 )
-
+                LaunchedEffect(navigateToHome) {
+                    if (navigateToHome) {
+                        navController.navigate("Home") {
+                            popUpTo(navController.graph.id) {
+                                inclusive = true
+                            }
+                        }
+                    }
+                }
             }
             Column (modifier= Modifier
                 .fillMaxWidth()
@@ -128,5 +140,9 @@ fun LoginScreen(navController: NavController) {
 @Preview
 @Composable
 fun DefaultPreviewLoginScreen() {
-    LoginScreen(navController = rememberNavController())
+
+    LoginScreen(navController = rememberNavController(), viewModel = LoginScreenViewModel(
+        MockService()
+    )
+    )
 }

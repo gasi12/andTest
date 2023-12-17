@@ -1,20 +1,20 @@
 package com.example.andtest.api
 
-import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
+import android.content.Context
 
 import com.example.andtest.SecurePreferences
 import com.example.andtest.api.dto.RefreshTokenBody
-import com.example.andtest.navigation.Screen
+import com.example.andtest.api.service.AuthService
 import okhttp3.Authenticator
 import okhttp3.Request
 import okhttp3.Response
 import okhttp3.Route
-import java.io.IOException
-class TokenAuthenticator(private val securePreferences: SecurePreferences, private val authService: AuthService) : Authenticator {
+
+class TokenAuthenticator(context: Context) : Authenticator {
 
 
-
+private val securePreferences= SecurePreferences.getInstance(context)
+    private val context= context
     override fun authenticate(route: Route?, response: Response): Request? {
         var token = securePreferences.getToken(SecurePreferences.TokenType.REFRESH)
 
@@ -25,7 +25,7 @@ class TokenAuthenticator(private val securePreferences: SecurePreferences, priva
         val tokenBody = RefreshTokenBody(token)
         val oldRequest = response.request()
         var newRequest : Request? =null
-        authService.refreshToken(tokenBody) { tokens, isSuccess ->
+       AuthService(context = context).refreshToken(tokenBody) { tokens, isSuccess ->
             if(isSuccess)
             {
                 token = securePreferences.getToken(SecurePreferences.TokenType.AUTH)

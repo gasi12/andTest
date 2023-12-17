@@ -1,58 +1,51 @@
-package com.example.andtest.api
+package com.example.andtest.api.service
 
 import android.content.Context
 import android.util.Log
-import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.runtime.Composable
-import androidx.navigation.NavController
 import com.example.andtest.SecurePreferences
+import com.example.andtest.api.MyApi
+import com.example.andtest.api.RetrofitClient
 import com.example.andtest.api.dto.LoginBody
 import com.example.andtest.api.dto.RefreshTokenBody
 import com.example.andtest.api.dto.Tokens
-import com.example.andtest.navigation.Screen
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
-class AuthService(private val context: Context, private val navController: NavController) {
-    private val securePreferences = SecurePreferences.getInstance(context)
-    private val tokenAuthenticator = TokenAuthenticator(securePreferences, this)
-    private val retrofit = RetrofitClient.getClient(context, tokenAuthenticator)
-    private val authApi = retrofit.create(MyApi::class.java)
-
-    private val myStorage = SecurePreferences.getInstance(context)
+class AuthService(context: Context) :ServiceInterface{
 
 
-    fun successfulresponse(body: LoginBody, callback: (Tokens?, Boolean) -> Unit) {
-        Log.i("succesfulresposne", "begin")
+val authApi = RetrofitClient.getClient(context).create(MyApi::class.java)
+    val myStorage = SecurePreferences.getInstance(context)
+    override fun successfulresponse(body: LoginBody, callback: (tokens: Tokens?, success: Boolean) -> Unit) {
+        // Implement the logic to make the API call and handle the response
         authApi.login(body).enqueue(object : Callback<Tokens> {
-
             override fun onResponse(call: Call<Tokens>, response: Response<Tokens>) {
                 if (response.isSuccessful) {
-                    Log.i("succesfulresposne", "res suc")
                     val tokens = response.body()
-                    tokens?.token?.let { myStorage.saveToken(it, SecurePreferences.TokenType.AUTH) }
-                    tokens?.token?.let {
-                        myStorage.saveToken(
-                            it,
-                            SecurePreferences.TokenType.REFRESH
-                        )
+                    if (tokens != null) {
+                        Log.i("token","${tokens.token}")
+                        myStorage.saveToken(tokens.token, SecurePreferences.TokenType.AUTH)
+                        myStorage.saveToken(tokens.refreshToken, SecurePreferences.TokenType.REFRESH)
                     }
                     callback(tokens, true)
                 } else {
                     Log.i("succesfulresposne", "res fail")
+                    Log.i("succesfulresposne", "${myStorage.getToken(SecurePreferences.TokenType.AUTH)}")
                     callback(null, false)
+                    myStorage.clearTokens()
                 }
             }
 
             override fun onFailure(call: Call<Tokens>, t: Throwable) {
+                myStorage.clearTokens()
                 Log.i("request failed", "${t.message}")
                 callback(null, false)
             }
         })
     }
 
-    fun refreshToken(body: RefreshTokenBody, callback: (Tokens?, Boolean) -> Unit) {
+    override fun refreshToken(body: RefreshTokenBody, callback: (Tokens?, Boolean) -> Unit) {
         authApi.refreshToken(body).enqueue(object : Callback<Tokens> {
             override fun onResponse(call: Call<Tokens>, response: Response<Tokens>) {
                 if (response.isSuccessful) {
@@ -91,14 +84,15 @@ class AuthService(private val context: Context, private val navController: NavCo
     }
 
     private fun navigateToLoginScreen() {
-        // Use the passed NavController to navigate
-        navController.navigate(Screen.LOGIN.name) {
-            // Clear back stack to prevent going back to the previous screen
-            popUpTo(navController.graph.id) {
-                inclusive = true
-            }
-            // Optional: Avoid multiple copies of the same destination
-            launchSingleTop = true
-        }
+        //todo to be put in viewmodel
+//        // Use the passed NavController to navigate
+//        navController.navigate(Screen.LOGIN.name) {
+//            // Clear back stack to prevent going back to the previous screen
+//            popUpTo(navController.graph.id) {
+//                inclusive = true
+//            }
+//            // Optional: Avoid multiple copies of the same destination
+//            launchSingleTop = true
+//        }
     }
 }
