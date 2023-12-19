@@ -1,14 +1,11 @@
 package com.example.andtest.api
 
 import android.content.Context
-import androidx.navigation.NavController
 
-import com.example.andtest.SecurePreferences
-import okhttp3.Authenticator
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import retrofit2.create
+
 
 const val BASE_URL ="http://192.168.1.87:8080/"
 
