@@ -5,7 +5,6 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.example.andtest.api.service.AuthService
 import com.example.andtest.api.dto.LoginBody
 import com.example.andtest.api.service.ServiceInterface
 
@@ -20,7 +19,7 @@ class LoginScreenViewModel(private val authService: ServiceInterface) : ViewMode
     // Function to handle login
     fun login(email: String, password: String) {
         val loginBody = LoginBody(email, password)
-        authService.successfulresponse(loginBody) { tokens, isSuccess ->
+        authService.loginCall(loginBody) { tokens, isSuccess ->
             if (isSuccess) {
                 _loginError.value = ""
                 navigateToHome.value = true  // Trigger navigation event

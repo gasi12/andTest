@@ -19,10 +19,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -50,7 +48,7 @@ fun LoginScreen(navController: NavController, viewModel: LoginScreenViewModel) {
     val email = remember { mutableStateOf("") }
     val password = remember { mutableStateOf("") }
 
-    val context = LocalContext.current
+//    val context = LocalContext.current
 
 
     Surface(
@@ -80,7 +78,7 @@ fun LoginScreen(navController: NavController, viewModel: LoginScreenViewModel) {
 
 //                        loginError=""
 //                        val loginbody = LoginBody("${email.value}", "${password.value}")
-//                        authService.successfulresponse(loginbody) { tokens, isSuccess ->
+//                        authService.loginCall(loginbody) { tokens, isSuccess ->
 //                            if (isSuccess) {
 //
 //
