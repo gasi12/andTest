@@ -1,10 +1,12 @@
 package com.example.andtest
 
 import android.content.Context
+import android.content.SharedPreferences
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
 
 class SecurePreferences private constructor(context: Context) {
+
     private val masterKey = MasterKey.Builder(context)
         .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
         .build()
@@ -24,11 +26,20 @@ class SecurePreferences private constructor(context: Context) {
     fun getToken(type: TokenType): String? {
         return sharedPreferences.getString(type.name, null)
     }
+
+    fun saveAnything(key: String, value: String)
+    {
+        sharedPreferences.edit().putString(key,value).apply()
+    }
+    fun getAnything(key: String): String
+    {
+        return sharedPreferences.getString(key,null)?: "not found"
+    }
     fun clearTokens(){
         val editor = sharedPreferences.edit()
-for(tokenType in TokenType.values()){
-    editor.remove(tokenType.name)
-}
+        for(tokenType in TokenType.values()){
+            editor.remove(tokenType.name)
+        }
         editor.apply()
     }
 
