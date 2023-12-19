@@ -1,23 +1,22 @@
 package com.example.andtest.api.dto
 
-import java.time.LocalDate
 
-data class ServiceRequestWithDetailsDto(
+data class StatusHistory(
+    val id: Long,
+    val status: String,
+    val comment: String,
+    val time: String
+)
+data class ServiceRequestWithDetailsDto( //ServiceRequestWithDetailsDto
     val id: Long,
     val description: String,
-    val status: String,
-    val endDate: String,//todo zrobic z tego date
+    val endDate: String,
     val startDate: String,
-    val price: Double,
-    val customerId: Long,
+    val price: Long,
     val customerFirstName: String,
     val customerLastName: String,
-    val customerPhoneNumber: String,
-    val userId: Long
-
-) {
-    override fun toString(): String {
-        return "ServiceRequestWithDetailsDto(id=$id, description='$description', status='$status', endDate=$endDate, startDate=$startDate, price=$price, customerId=$customerId, customerFirstName='$customerFirstName', customerLastName='$customerLastName', customerPhoneNumber='$customerPhoneNumber', userId=$userId)"
-    }
-}
-
+    val customerPhoneNumber: Long,
+    val userId: Long,
+    val lastStatus: String,
+    val statusHistory: List<StatusHistory>
+)

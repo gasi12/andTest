@@ -2,7 +2,7 @@ package com.example.andtest.api.dto
 
 data class RefreshTokenBody(
 
-    val token:String
+    val refreshToken:String
 )
 
 

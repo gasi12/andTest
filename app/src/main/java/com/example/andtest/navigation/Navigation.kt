@@ -1,7 +1,6 @@
 package com.example.andtest.navigation
 
 import android.util.Log
-import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -14,7 +13,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.andtest.SecurePreferences
-import com.example.andtest.api.RetrofitClient
 import com.example.andtest.api.dto.RefreshTokenBody
 import com.example.andtest.api.service.AuthService
 import com.example.andtest.screens.ExampleScreen
@@ -23,10 +21,12 @@ import com.example.andtest.screens.ExampleScreen2
 import com.example.andtest.screens.LoginScreen
 import com.example.andtest.screens.MainScreen
 import com.example.andtest.screens.SignupScreen
-import com.example.andtest.viewModels.ExampleScreenModelFactory
-import com.example.andtest.viewModels.ExampleScreenViewModel
+import com.example.andtest.viewModels.ServicesSummaryScreenFactory
+import com.example.andtest.viewModels.ServicesSummaryScreenViewModel
 import com.example.andtest.viewModels.LoginScreenViewModel
 import com.example.andtest.viewModels.LoginViewModelFactory
+import com.example.andtest.viewModels.ServiceDetailsFactory
+import com.example.andtest.viewModels.ServiceDetailsViewModel
 
 
 @Composable
@@ -69,14 +69,17 @@ Log.i("refreshtokendowyslania",refreshToken)
             }
             composable(route = Screen.EX.name) {
                 Log.i("navigation route","$startDestination" )
-                val viewModel:ExampleScreenViewModel =
-                    viewModel(factory = ExampleScreenModelFactory(authService))
+                val viewModel:ServicesSummaryScreenViewModel =
+                    viewModel(factory = ServicesSummaryScreenFactory(authService))
                 ExampleScreen(viewModel,navController)
             }
-            composable(route = Screen.EX2.name) {
-                Log.i("navigation route","$startDestination" )
-
-                ExampleScreen2(navController)
+            composable(route = "${Screen.EX2.name}/{id}") { backStackEntry ->
+                val id = backStackEntry.arguments?.getString("id")?.toLong()
+                if(id != null){
+                    val viewModel: ServiceDetailsViewModel =
+                        viewModel(factory = ServiceDetailsFactory(authService, id))
+                    ExampleScreen2(viewModel, navController)
+                }
             }
 
         }

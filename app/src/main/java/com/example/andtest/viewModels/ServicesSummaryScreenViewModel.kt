@@ -2,12 +2,12 @@ package com.example.andtest.viewModels
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.example.andtest.api.dto.ServiceRequestWithDetailsDto
+import com.example.andtest.api.dto.ServiceRequestWithUserNameDto
 import com.example.andtest.api.service.ServiceInterface
 
-class ExampleScreenViewModel(private val authService: ServiceInterface):ViewModel() {
+class ServicesSummaryScreenViewModel(private val authService: ServiceInterface):ViewModel() {
 
-    val serviceRequests: MutableLiveData<List<ServiceRequestWithDetailsDto>> = MutableLiveData()
+    val serviceRequests: MutableLiveData<List<ServiceRequestWithUserNameDto>> = MutableLiveData()
     fun getAllServices() {
 
         authService.getAllServiceRequestsWithUserName(0, 10)  { serviceRequestsList ->
@@ -16,11 +16,11 @@ class ExampleScreenViewModel(private val authService: ServiceInterface):ViewMode
     }
 
 }
-class ExampleScreenModelFactory(private val authService: ServiceInterface) :
+class ServicesSummaryScreenFactory(private val authService: ServiceInterface) :
     ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(ExampleScreenViewModel::class.java)) {
-            return ExampleScreenViewModel(authService) as T
+        if (modelClass.isAssignableFrom(ServicesSummaryScreenViewModel::class.java)) {
+            return ServicesSummaryScreenViewModel(authService) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

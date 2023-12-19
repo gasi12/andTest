@@ -32,24 +32,18 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.andtest.SecurePreferences
-import com.example.andtest.api.service.AuthService
 import com.example.andtest.api.service.MockService
 import com.example.andtest.api.service.ServiceInterface
 import com.example.andtest.navigation.Screen
-import com.example.andtest.viewModels.ExampleScreenModelFactory
-import com.example.andtest.viewModels.ExampleScreenViewModel
-import com.example.andtest.viewModels.LoginScreenViewModel
-import com.example.andtest.viewModels.LoginViewModelFactory
+import com.example.andtest.viewModels.ServicesSummaryScreenFactory
+import com.example.andtest.viewModels.ServicesSummaryScreenViewModel
 import kotlinx.coroutines.launch
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -60,8 +54,8 @@ fun MainScreen (navController: NavController,authService: ServiceInterface){
 
         val securePreferences = SecurePreferences
             .getInstance(LocalContext.current)
-    val viewModel: ExampleScreenViewModel =
-        viewModel(factory = ExampleScreenModelFactory(authService))
+    val servicesSummaryScreenViewModel: ServicesSummaryScreenViewModel =
+        viewModel(factory = ServicesSummaryScreenFactory(authService))
 
     val firstname = securePreferences.getAnything("firstname")
     val lastname = securePreferences.getAnything("lastname")
@@ -121,8 +115,8 @@ fun MainScreen (navController: NavController,authService: ServiceInterface){
                             .padding(top = 64.dp)
                     ) {
                         when (selectedItem) {
-                            Screen.EX.name -> ExampleScreen(viewModel,navController)
-                            Screen.EX2.name -> ExampleScreen2(navController)
+                            Screen.EX.name -> ExampleScreen(servicesSummaryScreenViewModel,navController)
+                          //  Screen.EX2.name -> ExampleScreen2(navController)
                             else -> Text("Screen not found")
                         }
                     }
