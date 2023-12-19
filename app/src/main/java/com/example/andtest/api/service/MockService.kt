@@ -1,25 +1,28 @@
 package com.example.andtest.api.service
 
-import android.util.Log
-import com.example.andtest.SecurePreferences
 import com.example.andtest.api.dto.LoginBody
 import com.example.andtest.api.dto.RefreshTokenBody
-import com.example.andtest.api.dto.Tokens
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
+import com.example.andtest.api.dto.LoginResponse
+import com.example.andtest.api.dto.ServiceRequestWithDetailsDto
 
 class MockService :ServiceInterface{
-    override fun successfulresponse(body: LoginBody, callback: (Tokens?, Boolean) -> Unit) {
+    override fun loginCall(body: LoginBody, callback: (LoginResponse?, Boolean) -> Unit) {
         // Simulate a successful response
-        val tokens = Tokens("mockAuthToken", "mockRefreshToken")
-        callback(tokens, true)
+        val loginResponse = LoginResponse("mockAuthToken", "mockRefreshToken","mockusername","mockfirstname","mocklastname")
+        callback(loginResponse, true)
     }
 
- override fun refreshToken(body: RefreshTokenBody, callback: (Tokens?, Boolean) -> Unit) {
+ override fun refreshToken(body: RefreshTokenBody, callback: (LoginResponse?, Boolean) -> Unit) {
         // Simulate a successful token refresh
-        val tokens = Tokens("newMockAuthToken", "newMockRefreshToken")
-        callback(tokens, true)
+     val loginResponse = LoginResponse("mockAuthToken", "mockRefreshToken","mockusername","mockfirstname","mocklastname")
+        callback(loginResponse, true)
     }
 
+    override fun getAllServiceRequestsWithUserName(
+        pageNo: Int?,
+        pageSize: Int?,
+        callback: (List<ServiceRequestWithDetailsDto>) -> Unit
+    ) {
+        TODO("Not yet implemented")
     }
+}

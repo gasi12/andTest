@@ -7,37 +7,50 @@ import com.example.andtest.api.MyApi
 import com.example.andtest.api.RetrofitClient
 import com.example.andtest.api.dto.LoginBody
 import com.example.andtest.api.dto.RefreshTokenBody
-import com.example.andtest.api.dto.Tokens
+import com.example.andtest.api.dto.LoginResponse
+import com.example.andtest.api.dto.ServiceRequestWithDetailsDto
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
-class AuthService(context: Context) :ServiceInterface{
+class AuthService(context: Context) : ServiceInterface {
 
 
-val authApi = RetrofitClient.getClient(context).create(MyApi::class.java)
+    val authApi = RetrofitClient.getClient(context).create(MyApi::class.java)
     val myStorage = SecurePreferences.getInstance(context)
-    override fun successfulresponse(body: LoginBody, callback: (tokens: Tokens?, success: Boolean) -> Unit) {
+    override fun loginCall(
+        body: LoginBody,
+        callback: (loginResponse: LoginResponse?, success: Boolean) -> Unit
+    ) {
         // Implement the logic to make the API call and handle the response
-        authApi.login(body).enqueue(object : Callback<Tokens> {
-            override fun onResponse(call: Call<Tokens>, response: Response<Tokens>) {
+        authApi.login(body).enqueue(object : Callback<LoginResponse> {
+            override fun onResponse(call: Call<LoginResponse>, response: Response<LoginResponse>) {
                 if (response.isSuccessful) {
                     val tokens = response.body()
                     if (tokens != null) {
-                        Log.i("token","${tokens.token}")
+                        Log.i("token", "${tokens.token}")
                         myStorage.saveToken(tokens.token, SecurePreferences.TokenType.AUTH)
-                        myStorage.saveToken(tokens.refreshToken, SecurePreferences.TokenType.REFRESH)
+                        myStorage.saveToken(
+                            tokens.refreshToken,
+                            SecurePreferences.TokenType.REFRESH
+                        )
+                        myStorage.saveAnything("username", tokens.username)
+                        myStorage.saveAnything("firstname", tokens.firstname)
+                        myStorage.saveAnything("lastname", tokens.lastname)
                     }
                     callback(tokens, true)
                 } else {
                     Log.i("succesfulresposne", "res fail")
-                    Log.i("succesfulresposne", "${myStorage.getToken(SecurePreferences.TokenType.AUTH)}")
+                    Log.i(
+                        "succesfulresposne",
+                        "${myStorage.getToken(SecurePreferences.TokenType.AUTH)}"
+                    )
                     callback(null, false)
                     myStorage.clearTokens()
                 }
             }
 
-            override fun onFailure(call: Call<Tokens>, t: Throwable) {
+            override fun onFailure(call: Call<LoginResponse>, t: Throwable) {
                 myStorage.clearTokens()
                 Log.i("request failed", "${t.message}")
                 callback(null, false)
@@ -45,11 +58,19 @@ val authApi = RetrofitClient.getClient(context).create(MyApi::class.java)
         })
     }
 
-    override fun refreshToken(body: RefreshTokenBody, callback: (Tokens?, Boolean) -> Unit) {
-        authApi.refreshToken(body).enqueue(object : Callback<Tokens> {
-            override fun onResponse(call: Call<Tokens>, response: Response<Tokens>) {
+    override fun refreshToken(
+        body: RefreshTokenBody,
+        callback: (LoginResponse?, Boolean) -> Unit
+    ) {
+        Log.i("im sendig token: ", body.token)
+        authApi.refreshToken(body).enqueue(object : Callback<LoginResponse> {
+            override fun onResponse(call: Call<LoginResponse>, response: Response<LoginResponse>) {
                 if (response.isSuccessful) {
                     val tokens = response.body()
+                    tokens?.let { myStorage.saveAnything("username", it.username) }
+                    tokens?.let { myStorage.saveAnything("firstname", it.firstname) }
+                    tokens?.let { myStorage.saveAnything("lastname", it.lastname) }
+                    Log.i("tokeny authservice.refreshtoken", tokens.toString())
                     tokens?.token?.let {
                         myStorage.saveToken(
                             it,
@@ -62,9 +83,9 @@ val authApi = RetrofitClient.getClient(context).create(MyApi::class.java)
                             SecurePreferences.TokenType.REFRESH
                         )
                     }
-                    if(tokens?.token == null||tokens?.refreshToken== null){
+                    Log.i("debugtoken", tokens?.refreshToken.toString())
+                    if (tokens?.token == null || tokens?.refreshToken == null) {
                         myStorage.clearTokens()
-                        navigateToLoginScreen()
                     }
                     callback(tokens, true)
                 } else {
@@ -73,26 +94,47 @@ val authApi = RetrofitClient.getClient(context).create(MyApi::class.java)
                 }
             }
 
-            override fun onFailure(call: Call<Tokens>, t: Throwable) {
+            override fun onFailure(call: Call<LoginResponse>, t: Throwable) {
                 Log.i("request failed", "${t.message}")
-                myStorage.clearTokens()
-                navigateToLoginScreen()
+                // myStorage.clearTokens()
                 callback(null, false)
             }
         })
 
     }
 
-    private fun navigateToLoginScreen() {
-        //todo to be put in viewmodel
-//        // Use the passed NavController to navigate
-//        navController.navigate(Screen.LOGIN.name) {
-//            // Clear back stack to prevent going back to the previous screen
-//            popUpTo(navController.graph.id) {
-//                inclusive = true
-//            }
-//            // Optional: Avoid multiple copies of the same destination
-//            launchSingleTop = true
-//        }
+    override fun getAllServiceRequestsWithUserName(
+        pageNo: Int?,
+        pageSize: Int?,
+        callback: (List<ServiceRequestWithDetailsDto>) -> Unit
+    ){
+        val serviceRequestList: MutableList<ServiceRequestWithDetailsDto> = mutableListOf()
+        authApi.getAllServiceRequestsWithUserName(pageNo, pageSize)
+            .enqueue(object : Callback<List<ServiceRequestWithDetailsDto>> {
+
+                override fun onResponse(
+                    call: Call<List<ServiceRequestWithDetailsDto>>,
+                    response: Response<List<ServiceRequestWithDetailsDto>>
+                ) {
+                    if (response.isSuccessful) {
+                        response.body()?.let { body ->
+                            serviceRequestList.addAll(body)
+                        }
+
+                        callback(serviceRequestList)
+                    }
+                }
+
+                override fun onFailure(
+                    call: Call<List<ServiceRequestWithDetailsDto>>,
+                    t: Throwable
+                ) {
+                    Log.i("onFail->getAllServiceRequestsWithUserName","failed with reason ${t.message}")
+                }
+            }
+
+
+            )
+
     }
 }
