@@ -10,4 +10,10 @@
     <string name="email">Email</string>
     <string name="passwordVisible">Password visible</string>
     <string name="passwordHidden">Password hidden</string>
+    <string name="customerInfo">Customer info</string>
+    <string name="serviceInfo">Service info</string>
+    <string name="submit">Submit</string>
+    <string name="description">Description</string>
+    <string name="price">Price</string>
+    <string name="deviceName">Device name</string>
 </resources>
