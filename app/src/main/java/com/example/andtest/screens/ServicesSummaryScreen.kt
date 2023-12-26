@@ -32,16 +32,13 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.andtest.navigation.Screen
-import com.example.andtest.viewModels.ServiceDetailsViewModel
-import com.example.andtest.viewModels.ServicesSummaryScreenFactory
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 
-fun ExampleScreen(viewModel: ServicesSummaryScreenViewModel, navController: NavController) {
+fun ServicesSummaryScreen(viewModel: ServicesSummaryScreenViewModel, navController: NavController) {
     val serviceRequests by viewModel.serviceRequests.observeAsState(initial = emptyList())
 
     LaunchedEffect(key1 = true) {
@@ -76,7 +73,7 @@ fun ExampleScreen(viewModel: ServicesSummaryScreenViewModel, navController: NavC
                                 .fillMaxSize(),
 colors = ButtonDefaults.buttonColors(Color((0.2F * serviceRequest.id), .5F, .5F)),
 
-                            onClick = { navController.navigate("${Screen.EX2.name}/${serviceRequest.id}") }) {
+                            onClick = { navController.navigate("${Screen.DETAILS.name}/${serviceRequest.id}") }) {
                             Text(
                                 text = serviceRequest.toString()
                             )
@@ -85,7 +82,7 @@ colors = ButtonDefaults.buttonColors(Color((0.2F * serviceRequest.id), .5F, .5F)
                     }
                 }
             }, floatingActionButton = {
-                FloatingActionButton(onClick = { }) {
+                FloatingActionButton(onClick = {navController.navigate(Screen.ADDSERVICE.name) }) {
                     Icon(Icons.Default.Add, contentDescription = "Add")
                 }
             }
@@ -98,7 +95,7 @@ colors = ButtonDefaults.buttonColors(Color((0.2F * serviceRequest.id), .5F, .5F)
     @Preview
     @Composable
     fun ExampleScreenPreview() {
-        ExampleScreen(
+        ServicesSummaryScreen(
             viewModel = ServicesSummaryScreenViewModel(authService = MockService()),
             navController = rememberNavController()
         )
