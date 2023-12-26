@@ -73,25 +73,10 @@ fun LoginScreen(navController: NavController, viewModel: LoginScreenViewModel) {
                     .fillMaxWidth()
                     .height(80.dp))
                 ButtonComponent(
-                    labelValue = "BUTTON", onclick = {
+                    labelValue = stringResource(id = R.string.login), onclick = {
                         viewModel.login(email.value,password.value)
 
-//                        loginError=""
-//                        val loginbody = LoginBody("${email.value}", "${password.value}")
-//                        authService.loginCall(loginbody) { tokens, isSuccess ->
-//                            if (isSuccess) {
-//
-//
-//                                navController.navigate("Home"){
-//                                    popUpTo(navController.graph.id){
-//                                        inclusive=true
-//                                    }
-//                                }
-//                            }else{
-//                            loginError="Invalid username or password!"
-//                            }
-//                            // Handle the tokens here if needed
-//                        }
+
                     }
                 )
                 LaunchedEffect(navigateToHome) {
