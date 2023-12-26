@@ -5,19 +5,18 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.padding
+
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Warning
+
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconButtonColors
+
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -28,9 +27,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.painter.Painter
+
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
@@ -79,10 +79,10 @@ fun NormalTextComponent(value: String) {
     }
     @OptIn(ExperimentalMaterial3Api::class)
         @Composable
-        fun InputTextField(labelValue:String,data : MutableState<String>){
+        fun InputTextField(labelValue:String,data : MutableState<String>, modifier: Modifier = Modifier,maxLines: Int = 1){
 
             OutlinedTextField(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().then(modifier),
                 label = { Text(labelValue) },
                 value = data.value,
 
@@ -94,14 +94,40 @@ fun NormalTextComponent(value: String) {
                     containerColor = Color.Cyan
                 ),
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
-                singleLine = true,
-                maxLines = 1,
+                singleLine = maxLines==1,
+
+                maxLines = maxLines,
 
                 onValueChange = { data.value = it
 
                 }
             )
         }
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun LastInputTextField(labelValue:String,data : MutableState<String>, modifier: Modifier = Modifier){
+
+    OutlinedTextField(
+        modifier = Modifier.fillMaxWidth().then(modifier),
+        label = { Text(labelValue) },
+        value = data.value,
+
+        colors = TextFieldDefaults.outlinedTextFieldColors(
+
+            focusedBorderColor = Color(0xff92a3fd),
+            focusedLabelColor = Color(0xff92a3fd),
+            cursorColor = Color(0xff92a3fd),
+            containerColor = Color.Cyan
+        ),
+        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+        singleLine = true,
+        maxLines = 1,
+
+        onValueChange = { data.value = it
+
+        }
+    )
+}
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PasswordField(labelValue:String,data:MutableState<String>){
