@@ -29,7 +29,7 @@ class AuthService(context: Context) : ServiceInterface {
                 if (response.isSuccessful) {
                     val tokens = response.body()
                     if (tokens != null) {
-                        Log.i("token", "${tokens.token}")
+                        Log.i("response body", response.body().toString())
                         myStorage.saveToken(tokens.token, SecurePreferences.TokenType.AUTH)
                         myStorage.saveToken(
                             tokens.refreshToken,

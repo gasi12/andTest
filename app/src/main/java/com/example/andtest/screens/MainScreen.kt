@@ -57,14 +57,14 @@ fun MainScreen (navController: NavController,authService: ServiceInterface){
     val servicesSummaryScreenViewModel: ServicesSummaryScreenViewModel =
         viewModel(factory = ServicesSummaryScreenFactory(authService))
 
-    val firstname = securePreferences.getAnything("firstname")
-    val lastname = securePreferences.getAnything("lastname")
+    val firstname = securePreferences.getAnything("firstName")
+    val lastname = securePreferences.getAnything("lastName")
     Surface(modifier = Modifier
         .fillMaxSize()
         .background(color = Color.White)) {
         val drawerState = rememberDrawerState(DrawerValue.Closed)
         val scope = rememberCoroutineScope()
-        var selectedItem by remember { mutableStateOf(Screen.EX.name) }
+        var selectedItem by remember { mutableStateOf(Screen.SUMMARY.name) }
         ModalNavigationDrawer(
             drawerState = drawerState,
             drawerContent = {
@@ -75,19 +75,19 @@ fun MainScreen (navController: NavController,authService: ServiceInterface){
                     // Your drawer content here
                     NavigationDrawerItem(
                         icon = { Icon(Icons.Default.Favorite, contentDescription = null) },
-                        label = { Text(Screen.EX.name) },
-                        selected = selectedItem == Screen.EX.name,
+                        label = { Text(Screen.SUMMARY.name) },
+                        selected = selectedItem == Screen.SUMMARY.name,
                         onClick = {
-                            selectedItem = Screen.EX.name
+                            selectedItem = Screen.SUMMARY.name
                         },
                         modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
                     )
                     NavigationDrawerItem(
                         icon = { Icon(Icons.Default.Settings, contentDescription = null) },
-                        label = { Text(Screen.EX2.name) },
-                        selected = selectedItem == Screen.EX2.name,
+                        label = { Text(Screen.DETAILS.name) },
+                        selected = selectedItem == Screen.DETAILS.name,
                         onClick = {
-                            selectedItem = Screen.EX2.name
+                            selectedItem = Screen.DETAILS.name
                         },
                         modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
                     )
@@ -115,8 +115,8 @@ fun MainScreen (navController: NavController,authService: ServiceInterface){
                             .padding(top = 64.dp)
                     ) {
                         when (selectedItem) {
-                            Screen.EX.name -> ExampleScreen(servicesSummaryScreenViewModel,navController)
-                          //  Screen.EX2.name -> ExampleScreen2(navController)
+                            Screen.SUMMARY.name -> ServicesSummaryScreen(servicesSummaryScreenViewModel,navController)
+                          //  Screen.DETAILS.name -> ServiceDetailsScreen(navController)
                             else -> Text("Screen not found")
                         }
                     }

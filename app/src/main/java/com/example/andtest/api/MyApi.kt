@@ -24,7 +24,7 @@ interface MyApi {
     fun refreshToken(@Body body: RefreshTokenBody): Call<LoginResponse>
 
 
-    @GET("/services/service-requests-with-user-name") //services summary
+    @GET("/services/services") //services summary
     fun getAllServiceRequestsWithUserName(
         @Query("pageNo") pageNo: Int? = 0,
         @Query("pageSize")pageSize: Int? = 10
@@ -39,6 +39,7 @@ interface MyApi {
     fun deleteServiceById(
         @Path("id") id : Long
     ): Call<Boolean>
+
 
 
 }

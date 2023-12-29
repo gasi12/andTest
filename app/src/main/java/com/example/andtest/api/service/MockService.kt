@@ -33,7 +33,7 @@ class MockService :ServiceInterface{
         for (i in 1..10) {
             val serviceRequest = ServiceRequestWithUserNameDto(
                 id = i.toLong(),
-                status = avilableStatus.random(),
+                lastStatus = avilableStatus.random(),
                 description = "Service description $i",
                 endDate = "2023-12-05",
                 startDate = "2023-11-14",

@@ -15,12 +15,15 @@ import androidx.navigation.compose.rememberNavController
 import com.example.andtest.SecurePreferences
 import com.example.andtest.api.dto.RefreshTokenBody
 import com.example.andtest.api.service.AuthService
-import com.example.andtest.screens.ExampleScreen
-import com.example.andtest.screens.ExampleScreen2
+import com.example.andtest.screens.AddServiceScreen
+import com.example.andtest.screens.ServicesSummaryScreen
+import com.example.andtest.screens.ServiceDetailsScreen
 
 import com.example.andtest.screens.LoginScreen
 import com.example.andtest.screens.MainScreen
 import com.example.andtest.screens.SignupScreen
+import com.example.andtest.viewModels.AddServiceScreenViewModel
+import com.example.andtest.viewModels.AddServiceScreenViewModelFactory
 import com.example.andtest.viewModels.ServicesSummaryScreenFactory
 import com.example.andtest.viewModels.ServicesSummaryScreenViewModel
 import com.example.andtest.viewModels.LoginScreenViewModel
@@ -67,21 +70,26 @@ Log.i("refreshtokendowyslania",refreshToken)
                     viewModel(factory = LoginViewModelFactory(authService))
                 LoginScreen(navController = navController, viewModel = viewModel)
             }
-            composable(route = Screen.EX.name) {
+            composable(route = Screen.SUMMARY.name) {
                 Log.i("navigation route","$startDestination" )
                 val viewModel:ServicesSummaryScreenViewModel =
                     viewModel(factory = ServicesSummaryScreenFactory(authService))
-                ExampleScreen(viewModel,navController)
+                ServicesSummaryScreen(viewModel,navController)
             }
-            composable(route = "${Screen.EX2.name}/{id}") { backStackEntry ->
+            composable(route = "${Screen.DETAILS.name}/{id}") { backStackEntry ->
                 val id = backStackEntry.arguments?.getString("id")?.toLong()
                 if(id != null){
                     val viewModel: ServiceDetailsViewModel =
                         viewModel(factory = ServiceDetailsFactory(authService, id))
-                    ExampleScreen2(viewModel, navController)
+                    ServiceDetailsScreen(viewModel, navController)
                 }
             }
-
+            composable(route = Screen.ADDSERVICE.name) {
+                Log.i("navigation route","$startDestination" )
+                val viewModel:AddServiceScreenViewModel =
+                    viewModel(factory = AddServiceScreenViewModelFactory(authService))
+                AddServiceScreen(navController = navController,viewModel=  viewModel)
+            }
         }
 
     }

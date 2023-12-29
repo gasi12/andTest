@@ -8,13 +8,12 @@ import com.example.andtest.api.service.ServiceInterface
 class ServicesSummaryScreenViewModel(private val authService: ServiceInterface):ViewModel() {
 
     val serviceRequests: MutableLiveData<List<ServiceRequestWithUserNameDto>> = MutableLiveData()
-    fun getAllServices() {
-
-        authService.getAllServiceRequestsWithUserName(0, 10)  { serviceRequestsList ->
+    fun getAllServices(callback: () -> Unit) {
+        authService.getAllServiceRequestsWithUserName(0, 10) { serviceRequestsList ->
             serviceRequests.value = serviceRequestsList
+            callback()
         }
     }
-
 }
 class ServicesSummaryScreenFactory(private val authService: ServiceInterface) :
     ViewModelProvider.Factory {
