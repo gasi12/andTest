@@ -3,7 +3,7 @@ package com.example.andtest.api
 import android.content.Context
 
 import com.example.andtest.SecurePreferences
-import com.example.andtest.api.dto.RefreshTokenBody
+import com.example.andtest.api.dto.RefreshTokenRequest
 import com.example.andtest.api.service.AuthService
 import okhttp3.Authenticator
 import okhttp3.Request
@@ -22,7 +22,7 @@ private val securePreferences= SecurePreferences.getInstance(context)
 
             return null
         }
-        val tokenBody = RefreshTokenBody(token)
+        val tokenBody = RefreshTokenRequest(token)
         val oldRequest = response.request()
         var newRequest : Request? =null
        AuthService(context = context).refreshToken(tokenBody) { tokens, isSuccess ->

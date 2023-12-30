@@ -1,37 +1,46 @@
 package com.example.andtest.api.service
 
-import com.example.andtest.api.dto.LoginBody
-import com.example.andtest.api.dto.RefreshTokenBody
+import com.example.andtest.api.dto.Customer
+import com.example.andtest.api.dto.Device
+import com.example.andtest.api.dto.LoginRequest
+import com.example.andtest.api.dto.RefreshTokenRequest
 import com.example.andtest.api.dto.LoginResponse
 import com.example.andtest.api.dto.ServiceRequestWithDetailsDto
-import com.example.andtest.api.dto.ServiceRequestWithUserNameDto
+import com.example.andtest.api.dto.ServiceRequestWithUserNameDtoResponse
 import com.example.andtest.api.dto.StatusHistory
+import com.example.andtest.api.dto.StatusHistoryDtoRequest
 
 class MockService :ServiceInterface{
-    override fun loginCall(body: LoginBody, callback: (LoginResponse?, Boolean) -> Unit) {
+    override fun loginCall(body: LoginRequest, callback: (LoginResponse?, Boolean) -> Unit) {
         // Simulate a successful response
         val loginResponse = LoginResponse("mockAuthToken", "mockRefreshToken","mockusername","mockfirstname","mocklastname")
         callback(loginResponse, true)
     }
 
- override fun refreshToken(body: RefreshTokenBody, callback: (LoginResponse?, Boolean) -> Unit) {
+ override fun refreshToken(body: RefreshTokenRequest, callback: (LoginResponse?, Boolean) -> Unit) {
         // Simulate a successful token refresh
-     val loginResponse = LoginResponse("mockAuthToken", "mockRefreshToken","mockusername","mockfirstname","mocklastname")
+            val loginResponse = LoginResponse("mockAuthToken", "mockRefreshToken","mockusername","mockfirstname","mocklastname")
         callback(loginResponse, true)
 
     }
 
-
+    override fun addStatusToService(
+        serviceId: Long,
+        body: StatusHistoryDtoRequest,
+        callback: (StatusHistoryDtoRequest?, Boolean) -> Unit
+    ) {
+        TODO("Not yet implemented")
+    }
 
     override fun getAllServiceRequestsWithUserName(
         pageNo: Int?,
         pageSize: Int?,
-        callback: (List<ServiceRequestWithUserNameDto>) -> Unit
+        callback: (List<ServiceRequestWithUserNameDtoResponse>) -> Unit
     ) {
-        val serviceRequests = mutableListOf<ServiceRequestWithUserNameDto>()
+        val serviceRequests = mutableListOf<ServiceRequestWithUserNameDtoResponse>()
         val avilableStatus = listOf("PENDING","ON_HOLD","FINISHED","IN_PROCESS")
         for (i in 1..10) {
-            val serviceRequest = ServiceRequestWithUserNameDto(
+            val serviceRequest = ServiceRequestWithUserNameDtoResponse(
                 id = i.toLong(),
                 lastStatus = avilableStatus.random(),
                 description = "Service description $i",
@@ -53,13 +62,12 @@ class MockService :ServiceInterface{
     override fun getServiceDetails(id: Long, callback: (ServiceRequestWithDetailsDto) -> Unit) {
         val service= ServiceRequestWithDetailsDto(
             id = 1L,
-            customerPhoneNumber = 123456789L,
-            userId = 2L,
-            customerLastName = "Wick",
-            customerFirstName = "Json",
+            customer = Customer(1, firstName = "john","wick",123456677),
+
+
             price = 12345,
             startDate = "2023-12-22",
-            endDate = "2024-11-01",
+            device = Device(5,"Car","1232456"),
             description = "that some long desciption to fill as many space as possible. This normally doesnt get any much longer than this," +
                     " but keep in mind to make a bit more space for special occasion",
             lastStatus = "ON_HOLD",

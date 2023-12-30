@@ -40,7 +40,7 @@ fun AddServiceScreen(navController: NavController,viewModel: AddServiceScreenVie
     val firstName = remember { mutableStateOf("") }
     val lastName = remember { mutableStateOf("") }
     val phoneNumber = remember { mutableStateOf("") }
-    val pagerState = rememberPagerState(pageCount = {2})
+    val pagerState = rememberPagerState(pageCount = {3})
     val description = remember { mutableStateOf("") }
     val deviceName = remember { mutableStateOf("") }
     val price = remember { mutableStateOf("") }
@@ -74,7 +74,7 @@ fun AddServiceScreen(navController: NavController,viewModel: AddServiceScreenVie
                         ButtonComponent(
                             labelValue = "Next", onclick = {
                                 coroutineScope.launch {
-                                    pagerState.animateScrollToPage(1)
+                                    pagerState.animateScrollToPage(2)
 
 
                                 }
@@ -99,6 +99,27 @@ fun AddServiceScreen(navController: NavController,viewModel: AddServiceScreenVie
                         ButtonComponent(
                             labelValue = stringResource(id = R.string.submit) , onclick = {
                                navController.navigate(Screen.HOME.name)
+                            }
+                        )
+                    }
+                }
+                2 -> {
+                    Column(modifier = Modifier.fillMaxWidth()) {
+                        NormalTextComponent(value = stringResource(id = R.string.hello))
+                        BoldTextComponent(value = stringResource(id = R.string.serviceInfo))
+                        Spacer(modifier = Modifier
+                            .fillMaxWidth()
+                            .height(30.dp))
+
+                        InputTextField(labelValue = stringResource(id = R.string.login), data = description, maxLines = 4)
+                        InputTextField(labelValue = stringResource(id = R.string.deviceName), data = deviceName)
+                        LastInputTextField(labelValue = stringResource(id = R.string.price), data = price)
+                        Spacer(modifier = Modifier
+                            .fillMaxWidth()
+                            .height(80.dp))
+                        ButtonComponent(
+                            labelValue = stringResource(id = R.string.submit) , onclick = {
+                                navController.navigate(Screen.HOME.name)
                             }
                         )
                     }

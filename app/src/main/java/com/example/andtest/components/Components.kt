@@ -1,9 +1,11 @@
 package com.example.andtest.components
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -13,7 +15,9 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 
@@ -21,6 +25,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextFieldDefaults
+
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
@@ -33,7 +38,9 @@ import androidx.compose.ui.graphics.Color
 
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.Placeholder
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -45,6 +52,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.andtest.R
+import com.example.andtest.api.dto.Status
+import kotlin.math.log
 
 
 @Composable
@@ -80,9 +89,12 @@ fun NormalTextComponent(value: String) {
     @OptIn(ExperimentalMaterial3Api::class)
         @Composable
         fun InputTextField(labelValue:String,data : MutableState<String>, modifier: Modifier = Modifier,maxLines: Int = 1){
-
+        val keyboardController = LocalSoftwareKeyboardController.current
             OutlinedTextField(
-                modifier = Modifier.fillMaxWidth().then(modifier),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .then(modifier)
+                    ,
                 label = { Text(labelValue) },
                 value = data.value,
 
@@ -98,17 +110,61 @@ fun NormalTextComponent(value: String) {
 
                 maxLines = maxLines,
 
-                onValueChange = { data.value = it
+                onValueChange = {
+
+                    if (it.contains("\n")) {
+                        keyboardController?.hide() //todo zadrutowane zeby chowac klawiature kiedy jest multiline
+                    } else  {
+                        data.value = it
+                    }
+
 
                 }
             )
         }
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun DropDownTextField(
+    labelValue:String,
+    placeholder: String,
+    data: MutableState<String>, modifier: Modifier = Modifier,
+    expanded: Boolean,
+    error:Boolean
+){
+
+    OutlinedTextField(
+        modifier = Modifier
+            .fillMaxWidth()
+            .then(modifier),
+        label = { Text(labelValue) },
+        value = placeholder,
+        placeholder = { Text(text = placeholder)},
+
+        colors = TextFieldDefaults.outlinedTextFieldColors(
+
+            focusedBorderColor = Color(0xff92a3fd),
+            focusedLabelColor = Color(0xff92a3fd),
+            cursorColor = Color(0xff92a3fd),
+            containerColor = if(error)Color.Red else Color.Cyan
+        ),
+        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+        singleLine = true,
+        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)},
+    readOnly = true,
+        onValueChange = { data.value = it
+
+        }
+    )
+}
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LastInputTextField(labelValue:String,data : MutableState<String>, modifier: Modifier = Modifier){
 
     OutlinedTextField(
-        modifier = Modifier.fillMaxWidth().then(modifier),
+        modifier = Modifier
+            .fillMaxWidth()
+            .then(modifier),
         label = { Text(labelValue) },
         value = data.value,
 

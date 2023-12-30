@@ -1,6 +1,6 @@
 package com.example.andtest.api.dto
 
-data class LoginBody(
+data class LoginRequest(
     val username: String,
     val password: String
 

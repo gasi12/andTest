@@ -1,6 +1,6 @@
 package com.example.andtest.api.dto
 
-data class RefreshTokenBody(
+data class RefreshTokenRequest(
 
     val refreshToken:String
 )

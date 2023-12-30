@@ -5,11 +5,12 @@ import android.util.Log
 import com.example.andtest.SecurePreferences
 import com.example.andtest.api.MyApi
 import com.example.andtest.api.RetrofitClient
-import com.example.andtest.api.dto.LoginBody
-import com.example.andtest.api.dto.RefreshTokenBody
+import com.example.andtest.api.dto.LoginRequest
+import com.example.andtest.api.dto.RefreshTokenRequest
 import com.example.andtest.api.dto.LoginResponse
 import com.example.andtest.api.dto.ServiceRequestWithDetailsDto
-import com.example.andtest.api.dto.ServiceRequestWithUserNameDto
+import com.example.andtest.api.dto.ServiceRequestWithUserNameDtoResponse
+import com.example.andtest.api.dto.StatusHistoryDtoRequest
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -20,7 +21,7 @@ class AuthService(context: Context) : ServiceInterface {
     val authApi = RetrofitClient.getClient(context).create(MyApi::class.java)
     val myStorage = SecurePreferences.getInstance(context)
     override fun loginCall(
-        body: LoginBody,
+        body: LoginRequest,
         callback: (loginResponse: LoginResponse?, success: Boolean) -> Unit
     ) {
         // Implement the logic to make the API call and handle the response
@@ -60,7 +61,7 @@ class AuthService(context: Context) : ServiceInterface {
     }
 
     override fun refreshToken(
-        body: RefreshTokenBody,
+        body: RefreshTokenRequest,
         callback: (LoginResponse?, Boolean) -> Unit
     ) {
         Log.i("im sendig token: ", body.refreshToken)
@@ -108,15 +109,15 @@ class AuthService(context: Context) : ServiceInterface {
     override fun getAllServiceRequestsWithUserName(
         pageNo: Int?,
         pageSize: Int?,
-        callback: (List<ServiceRequestWithUserNameDto>) -> Unit
+        callback: (List<ServiceRequestWithUserNameDtoResponse>) -> Unit
     ){
-        val serviceRequestList: MutableList<ServiceRequestWithUserNameDto> = mutableListOf()
+        val serviceRequestList: MutableList<ServiceRequestWithUserNameDtoResponse> = mutableListOf()
         authApi.getAllServiceRequestsWithUserName(pageNo, pageSize)
-            .enqueue(object : Callback<List<ServiceRequestWithUserNameDto>> {
+            .enqueue(object : Callback<List<ServiceRequestWithUserNameDtoResponse>> {
 
                 override fun onResponse(
-                    call: Call<List<ServiceRequestWithUserNameDto>>,
-                    response: Response<List<ServiceRequestWithUserNameDto>>
+                    call: Call<List<ServiceRequestWithUserNameDtoResponse>>,
+                    response: Response<List<ServiceRequestWithUserNameDtoResponse>>
                 ) {
                     if (response.isSuccessful) {
                         response.body()?.let { body ->
@@ -128,7 +129,7 @@ class AuthService(context: Context) : ServiceInterface {
                 }
 
                 override fun onFailure(
-                    call: Call<List<ServiceRequestWithUserNameDto>>,
+                    call: Call<List<ServiceRequestWithUserNameDtoResponse>>,
                     t: Throwable
                 ) {
                     Log.i("onFail->getAllServiceRequestsWithUserName","failed with reason ${t.message}")
@@ -172,17 +173,51 @@ Log.i("getservicedetails","id: $id")
 
     override fun deleteServiceById(id: Long, callback: (Boolean) -> Unit) {
         authApi.deleteServiceById(id)
-            .enqueue(object : Callback<Boolean>
-            {
-                override fun onResponse(call: Call<Boolean>, response: Response<Boolean>) {
-                    callback(response.isSuccessful)
+            .enqueue(object : Callback<Void> {
+                override fun onResponse(call: Call<Void>, response: Response<Void>) {
+                    if(response.isSuccessful){
+                        callback(true)
+                    } else {
+                        callback(false)
+                    }
                 }
 
-                override fun onFailure(call: Call<Boolean>, t: Throwable) {
+                override fun onFailure(call: Call<Void>, t: Throwable) {
                     Log.i("onFail->deleteServiceById","failed with reason ${t.message}")
+                    callback(false)
                 }
-            }
-
-            )
+            })
     }
+
+
+    override fun addStatusToService(
+        serviceId: Long,
+        body: StatusHistoryDtoRequest,
+        callback: (StatusHistoryDtoRequest?,Boolean) -> Unit
+    ) {
+       authApi.addStatusToService(serviceId,body)
+           .enqueue(object :Callback<StatusHistoryDtoRequest>
+           {
+               override fun onResponse(
+                   call: Call<StatusHistoryDtoRequest>,
+                   response: Response<StatusHistoryDtoRequest>
+               ) {
+                   if(response.isSuccessful&&response.body()!=null){
+                       response.body()?.let { body ->
+                           callback(body,true)
+                   }
+                   }else{
+                       callback(null,false)
+                   }
+               }
+
+               override fun onFailure(call: Call<StatusHistoryDtoRequest>, t: Throwable) {
+                   Log.i("onFail->addStatusToService","failed with reason ${t.message}")
+                   callback(null,false)
+               }
+           }
+           )
+    }
+
+
 }

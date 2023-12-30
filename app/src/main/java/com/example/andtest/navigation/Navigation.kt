@@ -13,9 +13,10 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.andtest.SecurePreferences
-import com.example.andtest.api.dto.RefreshTokenBody
+import com.example.andtest.api.dto.RefreshTokenRequest
 import com.example.andtest.api.service.AuthService
 import com.example.andtest.screens.AddServiceScreen
+import com.example.andtest.screens.AddStatusScreen
 import com.example.andtest.screens.ServicesSummaryScreen
 import com.example.andtest.screens.ServiceDetailsScreen
 
@@ -24,6 +25,8 @@ import com.example.andtest.screens.MainScreen
 import com.example.andtest.screens.SignupScreen
 import com.example.andtest.viewModels.AddServiceScreenViewModel
 import com.example.andtest.viewModels.AddServiceScreenViewModelFactory
+import com.example.andtest.viewModels.AddStatusScreenViewModel
+import com.example.andtest.viewModels.AddStatusScreenViewModelFactory
 import com.example.andtest.viewModels.ServicesSummaryScreenFactory
 import com.example.andtest.viewModels.ServicesSummaryScreenViewModel
 import com.example.andtest.viewModels.LoginScreenViewModel
@@ -41,7 +44,7 @@ import com.example.andtest.viewModels.ServiceDetailsViewModel
     var startDestination by remember { mutableStateOf<String?>(null) }
 Log.i("refreshtokendowyslania",refreshToken)
     LaunchedEffect(Unit) {
-        authService.refreshToken(RefreshTokenBody(refreshToken)) { tokens, isSuccess ->
+        authService.refreshToken(RefreshTokenRequest(refreshToken)) { tokens, isSuccess ->
 
 
            if (isSuccess && tokens?.token!=null) {
@@ -89,6 +92,14 @@ Log.i("refreshtokendowyslania",refreshToken)
                 val viewModel:AddServiceScreenViewModel =
                     viewModel(factory = AddServiceScreenViewModelFactory(authService))
                 AddServiceScreen(navController = navController,viewModel=  viewModel)
+            }
+            composable(route = "${Screen.ADDSTATUS.name}/{serviceId}") { backStackEntry ->
+                val serviceId = backStackEntry.arguments?.getString("serviceId")?.toLong()
+                if(serviceId != null){
+                    val viewModel: AddStatusScreenViewModel =
+                        viewModel(factory = AddStatusScreenViewModelFactory(authService, serviceId))
+                    AddStatusScreen( navController,viewModel)
+                }
             }
         }
 

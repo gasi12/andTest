@@ -4,7 +4,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.andtest.api.dto.ServiceRequestWithDetailsDto
-import com.example.andtest.api.dto.ServiceRequestWithUserNameDto
 import com.example.andtest.api.service.ServiceInterface
 
 class ServiceDetailsViewModel(private val authService: ServiceInterface,private val id: Long): ViewModel() {
