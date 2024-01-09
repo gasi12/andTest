@@ -1,8 +1,8 @@
 package com.example.andtest.api.dto
 
 enum class Status(val visibleName: String) {
-    PENDING("pending"),
-    IN_PROCESS("in process"),
-    ON_HOLD("on hold"),
-    FINISHED("finished")
+    PENDING("Pending"),
+    IN_PROCESS("In process"),
+    ON_HOLD("On hold"),
+    FINISHED("Finished")
 }
