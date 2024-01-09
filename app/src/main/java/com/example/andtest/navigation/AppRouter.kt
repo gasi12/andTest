@@ -8,7 +8,9 @@ enum class Screen {
     SUMMARY,
     DETAILS,
     ADDSERVICE,
-    ADDSTATUS
+    ADDSTATUS,
+    EDITSERVICE,
+    CUSTOMER
 }
 
 sealed class NavigationItem(val route: String) {
@@ -20,4 +22,6 @@ sealed class NavigationItem(val route: String) {
 
     object AddService : NavigationItem(Screen.ADDSERVICE.name)
     object AddStatus : NavigationItem(Screen.ADDSTATUS.name)
+    object EditService : NavigationItem(Screen.EDITSERVICE.name)
+    object Customer : NavigationItem(Screen.CUSTOMER.name)
 }

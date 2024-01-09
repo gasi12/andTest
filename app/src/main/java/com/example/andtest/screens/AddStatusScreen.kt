@@ -1,9 +1,7 @@
 package com.example.andtest.screens
 
-import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -35,7 +33,7 @@ import com.example.andtest.api.service.MockService
 import com.example.andtest.components.BoldTextComponent
 import com.example.andtest.components.ButtonComponent
 import com.example.andtest.components.DropDownTextField
-import com.example.andtest.components.InputTextField
+import com.example.andtest.components.MultiLineInputTextField
 import com.example.andtest.components.NormalTextComponent
 import com.example.andtest.viewModels.AddStatusScreenViewModel
 
@@ -89,23 +87,20 @@ if(isBodyPresent){
                                         text = { Text(text = statusValue.visibleName) },
                                         onClick = {
                                             status.value=statusValue.name
-
                                             isExpanded=false})
 
                                 }
-
-//
                             }
                         }
 
 
-                        InputTextField(labelValue = stringResource(id = R.string.description), data = comment, maxLines = 2)
+                        MultiLineInputTextField(labelValue = stringResource(id = R.string.description), data = comment, maxLines = 2)
 
                         Spacer(modifier = Modifier
                             .fillMaxWidth()
                             .height(80.dp))
                         ButtonComponent(
-                            labelValue = stringResource(id =R.string.submit ), onclick = {
+                            labelValue = stringResource(id =R.string.submit ), onClick = {
                                 if (status.value.isEmpty()) {
                                     error.value =true
                                 } else {
