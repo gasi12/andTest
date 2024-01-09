@@ -10,13 +10,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.ClickableText
-import androidx.compose.material3.Divider
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -44,17 +44,28 @@ import com.example.andtest.viewModels.LoginScreenViewModel
 fun LoginScreen(navController: NavController, viewModel: LoginScreenViewModel) {
 
     val navigateToHome by viewModel.navigateToHome
-    val loginError by viewModel.loginError.observeAsState("")
     val email = remember { mutableStateOf("") }
+    val emailError = remember { mutableStateOf(false) }
     val password = remember { mutableStateOf("") }
-
+    val passwordError= remember { mutableStateOf(false) }
+    val isLoading = remember { mutableStateOf(false) }
 //    val context = LocalContext.current
 
-
+    val fields = listOf(
+        email to emailError,
+        password to passwordError
+    )
+    fields.forEach { (field, error) ->
+        LaunchedEffect(field.value) {
+            if (field.value.isNotEmpty()) {
+                error.value = false
+            }
+        }
+    }
     Surface(
     modifier = Modifier
         .fillMaxSize()
-        .background(Color.White)
+        .background(Color.Transparent)
         .padding(20.dp)
     ) {
         Column(modifier = Modifier.fillMaxSize(),
@@ -66,25 +77,66 @@ fun LoginScreen(navController: NavController, viewModel: LoginScreenViewModel) {
                 Spacer(modifier = Modifier
                     .fillMaxWidth()
                     .height(30.dp))
-                InputTextField(labelValue = stringResource(id = R.string.email), data = email)
-                PasswordField(labelValue = stringResource(id = R.string.password),data = password)
-                Text(textAlign = TextAlign.Center, color = Color.Red,text = loginError)
+                InputTextField(labelValue = stringResource(id = R.string.email), data = email, error = emailError.value)
+                PasswordField(labelValue = stringResource(id = R.string.password),data = password,error = passwordError.value
+//                    ,onEnterPressed = {
+//                        var allFieldsNotEmpty = true
+//                        fields.forEach { (field, error) ->
+//                            if (field.value.isEmpty()) {
+//                                error.value = true
+//                                allFieldsNotEmpty = false
+//                            }
+//                        }
+//                        if (allFieldsNotEmpty) {
+//                            isLoading.value = true
+//                            viewModel.login(email.value, password.value)
+//                        }
+//                    }
+                )
+                if(navigateToHome==false){
+                    Text(textAlign = TextAlign.Center, color = Color.Red,text = "Wrong username or password!")
+                }
+
                 Spacer(modifier = Modifier
                     .fillMaxWidth()
                     .height(80.dp))
                 ButtonComponent(
-                    labelValue = stringResource(id = R.string.login), onclick = {
-                        viewModel.login(email.value,password.value)
-
-
+                    labelValue = stringResource(id = R.string.login), onClick = {
+                        var allFieldsNotEmpty = true
+                        fields.forEach { (field, error) ->
+                            if (field.value.isEmpty()) {
+                                error.value = true
+                                allFieldsNotEmpty = false
+                            }
+                        }
+                        if (allFieldsNotEmpty) {
+                            isLoading.value = true
+                            viewModel.login(email.value, password.value)
+                        }
                     }
                 )
+                if(isLoading.value){
+                CircularProgressIndicator()
+                }
+
                 LaunchedEffect(navigateToHome) {
-                    if (navigateToHome) {
-                        navController.navigate("Home") {
-                            popUpTo(navController.graph.id) {
-                                inclusive = true
+                    when (navigateToHome) {
+                        true -> {
+
+                            navController.navigate("Home") {
+                                popUpTo(navController.graph.id) {
+                                    inclusive = true
+                                }
                             }
+                            isLoading.value=false
+                        }
+                        false ->
+                        {
+
+                            isLoading.value=false
+                        }
+                        null -> {
+
                         }
                     }
                 }
@@ -95,7 +147,11 @@ fun LoginScreen(navController: NavController, viewModel: LoginScreenViewModel) {
                 //spacer to divide everyting into 3
             }
             Column (modifier= Modifier.fillMaxWidth()){
-                Divider(modifier = Modifier.fillMaxWidth(), color = Color.Gray, thickness = 1.dp)
+                HorizontalDivider(
+                    modifier = Modifier.fillMaxWidth(),
+                    thickness = 1.dp,
+                    color = Color.Gray
+                )
 
 
                 Column {

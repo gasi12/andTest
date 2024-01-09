@@ -1,5 +1,7 @@
 package com.example.andtest.viewModels
 
+import android.util.Log
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -10,22 +12,26 @@ import com.example.andtest.api.service.ServiceInterface
 
 class LoginScreenViewModel(private val authService: ServiceInterface) : ViewModel() {
     // LiveData to handle login error messages
-    private val _loginError = MutableLiveData<String>()
-    val loginError: LiveData<String> get() = _loginError
+
+
 
     // MutableState to handle navigation events
-    val navigateToHome = mutableStateOf(false)
+    val navigateToHome : MutableState<Boolean?> = mutableStateOf(null)
 
     // Function to handle login
     fun login(email: String, password: String) {
+        navigateToHome.value=null
         val loginRequest = LoginRequest(email, password)
         authService.loginCall(loginRequest) { tokens, isSuccess ->
             if (isSuccess) {
-                _loginError.value = ""
+                //_loginError.value = ""
                 navigateToHome.value = true  // Trigger navigation event
             } else {
-                _loginError.value = "Invalid username or password!"
+                Log.i("navigatetohome", navigateToHome.value.toString())
+                navigateToHome.value=false
+              //  _loginError.value = "Invalid username or password!"
             }
+
         }
     }
 }

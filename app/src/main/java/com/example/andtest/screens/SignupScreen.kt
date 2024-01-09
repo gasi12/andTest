@@ -10,7 +10,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.ClickableText
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -63,7 +63,7 @@ fun SignupScreen(navController: NavController) {
                     .fillMaxWidth()
                     .height(80.dp))
                 ButtonComponent(
-                    labelValue = "BUTTON", onclick = {
+                    labelValue = "BUTTON", onClick = {
 
                     }
                 )
@@ -74,7 +74,11 @@ fun SignupScreen(navController: NavController) {
                 //spacer to divide everyting into 3
             }
             Column (modifier= Modifier.fillMaxWidth()) {
-                Divider(modifier = Modifier.fillMaxWidth(), color = Color.Gray, thickness = 1.dp)
+                HorizontalDivider(
+                    modifier = Modifier.fillMaxWidth(),
+                    thickness = 1.dp,
+                    color = Color.Gray
+                )
 
 
                 Column {
