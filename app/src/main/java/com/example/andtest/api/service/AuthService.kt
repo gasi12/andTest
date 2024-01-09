@@ -5,9 +5,13 @@ import android.util.Log
 import com.example.andtest.SecurePreferences
 import com.example.andtest.api.MyApi
 import com.example.andtest.api.RetrofitClient
+import com.example.andtest.api.dto.Customer
+import com.example.andtest.api.dto.CustomerAndDevicesAndServiceRequestsDto
+import com.example.andtest.api.dto.CustomerWithDevicesListDtoResponse
 import com.example.andtest.api.dto.LoginRequest
 import com.example.andtest.api.dto.RefreshTokenRequest
 import com.example.andtest.api.dto.LoginResponse
+import com.example.andtest.api.dto.ServiceRequest
 import com.example.andtest.api.dto.ServiceRequestWithDetailsDto
 import com.example.andtest.api.dto.ServiceRequestWithUserNameDtoResponse
 import com.example.andtest.api.dto.StatusHistoryDtoRequest
@@ -87,7 +91,7 @@ class AuthService(context: Context) : ServiceInterface {
                         )
                     }
                     Log.i("debugtoken", tokens?.refreshToken.toString())
-                    if (tokens?.token == null || tokens?.refreshToken == null) {
+                    if (tokens?.token == null || tokens.refreshToken == null) {
                         myStorage.clearTokens()
                     }
                     callback(tokens, true)
@@ -107,18 +111,21 @@ class AuthService(context: Context) : ServiceInterface {
     }
 
     override fun getAllServiceRequestsWithUserName(
-        pageNo: Int?,
+        page: Int?,
         pageSize: Int?,
         callback: (List<ServiceRequestWithUserNameDtoResponse>) -> Unit
     ){
         val serviceRequestList: MutableList<ServiceRequestWithUserNameDtoResponse> = mutableListOf()
-        authApi.getAllServiceRequestsWithUserName(pageNo, pageSize)
+        Log.i("page",page.toString())
+        Log.i("pagesize",pageSize.toString())
+        authApi.getAllServiceRequestsWithUserName(page, pageSize)
             .enqueue(object : Callback<List<ServiceRequestWithUserNameDtoResponse>> {
 
                 override fun onResponse(
                     call: Call<List<ServiceRequestWithUserNameDtoResponse>>,
                     response: Response<List<ServiceRequestWithUserNameDtoResponse>>
-                ) {
+                )
+                {
                     if (response.isSuccessful) {
                         response.body()?.let { body ->
                             serviceRequestList.addAll(body)
@@ -141,7 +148,31 @@ class AuthService(context: Context) : ServiceInterface {
 
     }
 
-   override fun getServiceDetails(id: Long, callback: (ServiceRequestWithDetailsDto) -> Unit) {
+    override fun getCustomerList(page: Int?,pageSize: Int?, callback: (List<Customer>) -> Unit) {
+        val customerList: MutableList<Customer> = mutableListOf()
+        authApi.getAllCustomers(page,pageSize).enqueue(object : Callback<List<Customer>>{
+            override fun onResponse(
+                call: Call<List<Customer>>,
+                response: Response<List<Customer>>
+            ) {
+                Log.i("Customer response ",response.body().toString())
+                if (response.isSuccessful) {
+
+                    response.body()?.let { body ->
+                        customerList.addAll(body)
+                    }
+
+                    callback(customerList)
+                }
+            }
+
+            override fun onFailure(call: Call<List<Customer>>, t: Throwable) {
+                Log.i("onFail->getCustomerList","failed with reason ${t.message}")
+            }
+        })
+    }
+
+    override fun getServiceDetails(id: Long, callback: (ServiceRequestWithDetailsDto) -> Unit) {
 Log.i("getservicedetails","id: $id")
 
         authApi.getServiceDetails(id)
@@ -219,5 +250,92 @@ Log.i("getservicedetails","id: $id")
            )
     }
 
+    override fun getCustomerWithDevicesByPhoneNumber(
+        phoneNumber: Long,
+        callback: (CustomerWithDevicesListDtoResponse?, Boolean) -> Unit
+    ) {
+        authApi.getUserWithDevicesByPhoneNumber(phoneNumber).enqueue(object :Callback<CustomerWithDevicesListDtoResponse>
+        {
 
+            override fun onResponse(
+                call: Call<CustomerWithDevicesListDtoResponse>,
+                response: Response<CustomerWithDevicesListDtoResponse>
+            ) {
+
+
+                if(response.code()==404){
+
+                        callback(null,false)
+
+                }
+                    if(response.isSuccessful){
+
+                        response.body()?.let { body ->
+
+                            callback(body,true)
+                        }
+                    }else{
+                        callback(null,true)
+                    }
+
+            }
+
+            override fun onFailure(call: Call<CustomerWithDevicesListDtoResponse>, t: Throwable) {
+                Log.i("onFail->getCustomerWithDevicesByPhoneNumber","failed with reason ${t.message}")
+                callback(null,false)
+            }
+        }
+        )
+    }
+
+
+    override fun addCustomerWithDeviceAndService(
+        body: CustomerAndDevicesAndServiceRequestsDto,
+        callback: (CustomerAndDevicesAndServiceRequestsDto?,Boolean) -> Unit
+    ) {
+        authApi.addCustomerWithDeviceAndService(body)
+            .enqueue(object : Callback<CustomerAndDevicesAndServiceRequestsDto> {
+                override fun onResponse(
+                    call: Call<CustomerAndDevicesAndServiceRequestsDto>,
+                    response: Response<CustomerAndDevicesAndServiceRequestsDto>
+                ) {
+                    if(response.isSuccessful&&response.body()!=null){
+                        callback(response.body(),true)
+                    } else {
+                        callback(null,false)
+                    }
+                }
+
+                override fun onFailure(call: Call<CustomerAndDevicesAndServiceRequestsDto>, t: Throwable) {
+                    Log.i("onFail->deleteServiceById","failed with reason ${t.message}")
+                    callback(null,false)
+                }
+            })
+    }
+
+    override fun editService(id: Long, body: ServiceRequest, callback: (Boolean) -> Unit) {
+        authApi.editService(id,body)
+            .enqueue(object :Callback<ServiceRequest>
+            {
+                override fun onResponse(
+                    call: Call<ServiceRequest>,
+                    response: Response<ServiceRequest>
+                ) {
+                    if(response.isSuccessful&&response.body()!=null){
+                        response.body()?.let { body ->
+                            Log.i("Edit body", body.toString())
+                            callback(true)
+                        }
+                    }else{
+                        callback(false)
+                    }
+                }
+
+                override fun onFailure(call: Call<ServiceRequest>, t: Throwable) {
+                    Log.i("onFail->addStatusToService","failed with reason ${t.message}")
+                    callback(false)
+                }
+            }
+            )
+    }
 }

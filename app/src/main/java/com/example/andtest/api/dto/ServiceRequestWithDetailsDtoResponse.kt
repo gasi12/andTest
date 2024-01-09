@@ -1,11 +1,23 @@
 package com.example.andtest.api.dto
 
+import android.util.Log
+import java.time.LocalDateTime
+import java.util.Date
 
-
+data class ServiceRequest(
+    val description: String,
+    val price: Long
+)
+data class ServiceRequestWithId(
+    val id: Long,
+    val description: String,
+    val price: Long
+)
 data class Device(
     val id: Long,
     val deviceName: String,
-    val deviceSerialNumber: String
+    val deviceSerialNumber: String,
+    val deviceType: DeviceType
 )
 
 data class StatusHistory(
@@ -25,10 +37,24 @@ data class Customer(
 data class ServiceRequestWithDetailsDto(
     val id: Long,
     val description: String,
-    val startDate: String,
+    val startDate: LocalDateTime,
+    val endDate: LocalDateTime,
     val price: Long,
     val device: Device,
-    val lastStatus: String,
-    val statusHistory: List<StatusHistory>,
+    val lastStatus: Status,
+    val statusHistoryList: List<StatusHistory>,
     val customer: Customer
 )
+
+
+fun String.formatToDateTime():String{
+
+    try {
+        return replace("T", " ").trim().dropLast(7)
+    } catch (e: Exception) {
+        Log.i("formattodatetimeexceptipon", e.toString())
+    }
+    return ""
+}
+
+
