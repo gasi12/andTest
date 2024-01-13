@@ -2,7 +2,9 @@ package com.example.andtest.api
 
 import com.example.andtest.api.dto.Customer
 import com.example.andtest.api.dto.CustomerAndDevicesAndServiceRequestsDto
+import com.example.andtest.api.dto.CustomerAndDevicesAndServiceResponseDto
 import com.example.andtest.api.dto.CustomerWithDevicesListDtoResponse
+import com.example.andtest.api.dto.Device
 import com.example.andtest.api.dto.LoginRequest
 import com.example.andtest.api.dto.RefreshTokenRequest
 import com.example.andtest.api.dto.LoginResponse
@@ -61,7 +63,7 @@ interface MyApi {
     @POST("/customer")
     fun addCustomerWithDeviceAndService(
         @Body body: CustomerAndDevicesAndServiceRequestsDto
-    ): Call<CustomerAndDevicesAndServiceRequestsDto>
+    ): Call<CustomerAndDevicesAndServiceResponseDto>
 
     @PUT("/services/service/{id}")
     fun editService(
@@ -74,6 +76,12 @@ interface MyApi {
         @Query("page") page: Int? = 0,
         @Query("pageSize")pageSize: Int? = 10
     ): Call<List<Customer>>
+
+    @GET("/device/all/pageable") //services summary
+    fun getAllDevices(
+        @Query("page") page: Int? = 0,
+        @Query("pageSize")pageSize: Int? = 10
+    ): Call<List<Device>>
 
 }
 
