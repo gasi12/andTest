@@ -45,14 +45,17 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavController
+import com.example.andtest.api.dto.DeviceType
 import com.example.andtest.api.dto.ServiceRequest
+import com.example.andtest.api.dto.ServiceRequestWithUserNameDtoResponse
+import com.example.andtest.api.dto.Status
 import com.example.andtest.navigation.Screen
 import com.example.andtest.viewModels.ServicesSummaryScreenViewModel
 import kotlinx.coroutines.delay
@@ -124,7 +127,7 @@ fun ServicesSummaryScreen(viewModel: ServicesSummaryScreenViewModel, navControll
                     LazyColumn(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 10.dp),
+                            .padding(horizontal = 20.dp),
                         horizontalAlignment = Alignment.CenterHorizontally,
                         state = listState
                     ) {
@@ -140,65 +143,22 @@ fun ServicesSummaryScreen(viewModel: ServicesSummaryScreenViewModel, navControll
                                 Box(
                                     modifier = Modifier
 //                                        .heightIn(max=200.dp)
-                                        .padding(2.dp)
+                                        .padding(5.dp)
                                         .fillMaxSize()
                                         .background(
                                             MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.3f),
                                             RoundedCornerShape(15.dp)
                                         )
                                         .combinedClickable(
-                                            onLongClick = { showDialog = true },
-                                            onClick = { navController.navigate("${Screen.DETAILS.name}/${serviceRequest.id}") }),
+                                            onLongClick = {
+                                                Log.i("WFT",serviceRequest.toString())
+//                                                showDialog = true
+                                                          },
+                                            onClick = { navController.navigate("${Screen.SERVICEDETAILS.name}/${serviceRequest.id}") }),
                                     contentAlignment = Alignment.Center,
                                     propagateMinConstraints = true
                                 ) {
-                                    Column(modifier= Modifier.padding(10.dp)) {
-                                        Row {
-                                            Text(
-                                                text = "Customer",
-                                                color = MaterialTheme.colorScheme.onSecondaryContainer,
-                                                modifier = Modifier.padding(0.dp),
-                                                fontWeight = FontWeight.Bold,
-                                            )
-                                            Spacer(Modifier.weight(1f))
-                                            Text(
-                                                text = formatDateToShortLocaleToString(serviceRequest.startDate),
-                                                color = MaterialTheme.colorScheme.onSecondaryContainer,
-                                                modifier = Modifier.padding(0.dp),
-                                                fontWeight = FontWeight.Bold,
-                                            )
-                                        }
-                                        Text(
-                                            text = serviceRequest.customerFirstName.plus(" ").plus(serviceRequest.customerLastName),
-                                            color = MaterialTheme.colorScheme.onSecondaryContainer,
-                                            modifier = Modifier.padding(0.dp)
-                                        )
-                                        Text(
-                                            text = "Device",
-                                            color = MaterialTheme.colorScheme.onSecondaryContainer,
-                                            modifier = Modifier.padding(0.dp),
-                                            fontWeight = FontWeight.Bold,
-                                        )
-                                        Text(
-                                            text = serviceRequest.deviceType.visibleName.plus(" ").plus(serviceRequest.deviceName),
-                                            color = MaterialTheme.colorScheme.onSecondaryContainer,
-                                            modifier = Modifier.padding(0.dp)
-                                        )
-                                        Text(
-                                            text = "Description",
-                                            color = MaterialTheme.colorScheme.onSecondaryContainer,
-                                            modifier = Modifier.padding(0.dp),
-                                            fontWeight = FontWeight.Bold,
-                                        )
-                                        Text(
-                                            text = serviceRequest.description,
-                                            color = MaterialTheme.colorScheme.onSecondaryContainer,
-                                            modifier = Modifier
-                                                .padding(0.dp)
-                                                .heightIn(max = 50.dp), // Set your desired maximum height here
-                                            overflow = TextOverflow.Ellipsis
-                                        )
-                                    }
+                                ServiceSummaryCardAlt(serviceRequest = serviceRequest)
                                 }
                                 if (showDialog) {
                                     Dialog(onDismissRequest = { showDialog = false }) {
@@ -269,11 +229,96 @@ fun formatDateToShortLocaleToString(date: LocalDateTime):String{
     return date.dayOfMonth.toString().plus(" ").plus(date.month.getDisplayName(java.time.format.TextStyle.SHORT,locale))
 
 }
-//    @Preview
-//    @Composable
-//    fun ExampleScreenPreview() {
-//        ServicesSummaryScreen(
-//            viewModel = ServicesSummaryScreenViewModel(authService = MockService(), sharedViewModel = MockViewModel()),
-//            navController = rememberNavController()
-//        )
-//    }
+@Preview
+@Composable
+fun CardPreview(){
+    val serviceRequest = ServiceRequestWithUserNameDtoResponse(
+        id = 1337L,
+        lastStatus = Status.PENDING.name,
+        description = "Service description",
+        endDate = LocalDateTime.now().plusDays(5),
+        startDate = LocalDateTime.now(),
+        price = (80L)/3,
+        customerFirstName = "Json",
+        customerLastName = "Wick",
+        userId = 5L,
+        customerId =7L,
+        customerPhoneNumber = "1234535",
+        deviceName = "Dell",
+        deviceType = DeviceType.DESKTOP
+
+    )
+ServiceSummaryCardAlt(serviceRequest = serviceRequest)
+}
+@Composable
+fun ServiceSummaryCard(serviceRequest: ServiceRequestWithUserNameDtoResponse){
+    Column(modifier= Modifier.padding(10.dp)) {
+        Row {
+            Text(
+                text = "Customer",
+                color = MaterialTheme.colorScheme.onSecondaryContainer,
+                modifier = Modifier.padding(0.dp),
+                fontWeight = FontWeight.Bold,
+            )
+            Spacer(Modifier.weight(1f))
+            Text(
+                text = formatDateToShortLocaleToString(serviceRequest.startDate),
+                color = MaterialTheme.colorScheme.onSecondaryContainer,
+                modifier = Modifier.padding(0.dp),
+                fontWeight = FontWeight.Bold,
+            )
+        }
+        Text(
+            text = serviceRequest.customerFirstName.plus(" ").plus(serviceRequest.customerLastName),
+            color = MaterialTheme.colorScheme.onSecondaryContainer,
+            modifier = Modifier.padding(0.dp)
+        )
+//                                        RowWithValue(row =serviceRequest.deviceType.visibleName.plus(" ").plus(serviceRequest.deviceName) , description = "Device")
+        Text(
+            text = "Device",
+            color = MaterialTheme.colorScheme.onSecondaryContainer,
+            modifier = Modifier.padding(0.dp),
+            fontWeight = FontWeight.Bold,
+        )
+        Text(
+            text = serviceRequest.deviceType.visibleName.plus(" ").plus(serviceRequest.deviceName),
+            color = MaterialTheme.colorScheme.onSecondaryContainer,
+            modifier = Modifier.padding(0.dp)
+        )
+        Text(
+            text = "Description",
+            color = MaterialTheme.colorScheme.onSecondaryContainer,
+            modifier = Modifier.padding(0.dp),
+            fontWeight = FontWeight.Bold,
+        )
+        Text(
+            text = serviceRequest.description,
+            color = MaterialTheme.colorScheme.onSecondaryContainer,
+            modifier = Modifier
+                .padding(0.dp)
+                .heightIn(max = 50.dp), // Set your desired maximum height here
+            overflow = TextOverflow.Ellipsis
+        )
+    }
+}
+@Composable
+fun ServiceSummaryCardAlt(serviceRequest: ServiceRequestWithUserNameDtoResponse){
+    Column(modifier= Modifier
+        .padding(15.dp)
+//        .padding(vertical = 5.dp)
+
+        ) {
+        Row {
+            RowWithValue(row =serviceRequest.customerFirstName.plus(" ").plus(serviceRequest.customerLastName) , description = "Customer")
+            Spacer(Modifier.weight(1f))
+            Text(
+                text = formatDateToShortLocaleToString(serviceRequest.startDate),
+                color = MaterialTheme.colorScheme.onSecondaryContainer,
+                modifier = Modifier.padding(0.dp),
+                fontWeight = FontWeight.Bold,
+            )
+        }
+        RowWithValue(row =serviceRequest.deviceName , description = "Device")
+        RowWithValue(row = serviceRequest.description, description ="Description",overflow = true )
+    }
+}
