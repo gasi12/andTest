@@ -7,7 +7,9 @@ import com.example.andtest.api.MyApi
 import com.example.andtest.api.RetrofitClient
 import com.example.andtest.api.dto.Customer
 import com.example.andtest.api.dto.CustomerAndDevicesAndServiceRequestsDto
+import com.example.andtest.api.dto.CustomerAndDevicesAndServiceResponseDto
 import com.example.andtest.api.dto.CustomerWithDevicesListDtoResponse
+import com.example.andtest.api.dto.Device
 import com.example.andtest.api.dto.LoginRequest
 import com.example.andtest.api.dto.RefreshTokenRequest
 import com.example.andtest.api.dto.LoginResponse
@@ -19,11 +21,24 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
-class AuthService(context: Context) : ServiceInterface {
+class AuthService private constructor(context: Context):ServiceInterface {
+    private val authApi: MyApi
+    private val myStorage: SecurePreferences
 
+    init {
+        val retrofitClient = RetrofitClient.getClient(context)
+        authApi = retrofitClient.create(MyApi::class.java)
+        myStorage = SecurePreferences.getInstance(context)
+    }
+    companion object {
+        @Volatile private var instance: AuthService? = null
 
-    val authApi = RetrofitClient.getClient(context).create(MyApi::class.java)
-    val myStorage = SecurePreferences.getInstance(context)
+        fun getInstance(context: Context): AuthService {
+            return instance ?: synchronized(this) {
+                instance ?: AuthService(context.applicationContext).also { instance = it }
+            }
+        }
+    }
     override fun loginCall(
         body: LoginRequest,
         callback: (loginResponse: LoginResponse?, success: Boolean) -> Unit
@@ -34,31 +49,30 @@ class AuthService(context: Context) : ServiceInterface {
                 if (response.isSuccessful) {
                     val tokens = response.body()
                     if (tokens != null) {
-                        Log.i("response body", response.body().toString())
+                        Log.i("login tokens", response.body().toString())
                         myStorage.saveToken(tokens.token, SecurePreferences.TokenType.AUTH)
-                        myStorage.saveToken(
-                            tokens.refreshToken,
-                            SecurePreferences.TokenType.REFRESH
-                        )
+                        myStorage.saveToken(tokens.refreshToken, SecurePreferences.TokenType.REFRESH)
                         myStorage.saveAnything("username", tokens.username)
                         myStorage.saveAnything("firstName", tokens.firstName)
                         myStorage.saveAnything("lastName", tokens.lastName)
                     }
                     callback(tokens, true)
                 } else {
-                    Log.i("succesfulresposne", "res fail")
+
+                    Log.i("login tokens fail", response.body().toString())
                     Log.i(
-                        "succesfulresposne",
+                        "login tokens fail",
                         "${myStorage.getToken(SecurePreferences.TokenType.AUTH)}"
                     )
-                    callback(null, false)
                     myStorage.clearTokens()
+                    callback(null, false)
+
                 }
             }
 
             override fun onFailure(call: Call<LoginResponse>, t: Throwable) {
                 myStorage.clearTokens()
-                Log.i("request failed", "${t.message}")
+                Log.i("login request failed", "${t.message}")
                 callback(null, false)
             }
         })
@@ -68,9 +82,10 @@ class AuthService(context: Context) : ServiceInterface {
         body: RefreshTokenRequest,
         callback: (LoginResponse?, Boolean) -> Unit
     ) {
-        Log.i("im sendig token: ", body.refreshToken)
+
         authApi.refreshToken(body).enqueue(object : Callback<LoginResponse> {
             override fun onResponse(call: Call<LoginResponse>, response: Response<LoginResponse>) {
+                Log.i("refreshtoken","response ${response.body()?.token}")
                 if (response.isSuccessful&&response.body()?.token!=null) {
                     val tokens = response.body()
                     Log.i("tokeny authservice.refreshtoken", response.body().toString())
@@ -92,10 +107,12 @@ class AuthService(context: Context) : ServiceInterface {
                     }
                     Log.i("debugtoken", tokens?.refreshToken.toString())
                     if (tokens?.token == null || tokens.refreshToken == null) {
+                        Log.i("refreshtoken", "token clear")
                         myStorage.clearTokens()
                     }
                     callback(tokens, true)
                 } else {
+                    Log.i("refreshtoken", "idk why it happens")
                     callback(null, false)
 
                 }
@@ -110,6 +127,34 @@ class AuthService(context: Context) : ServiceInterface {
 
     }
 
+    fun refreshTokenSynchronously(body: RefreshTokenRequest): LoginResponse? {
+        return try {
+            val response = authApi.refreshToken(body).execute()
+            if (response.isSuccessful && response.body()?.token != null) {
+                val tokens = response.body()
+                tokens?.let { myStorage.saveAnything("username", it.username) }
+                tokens?.let { myStorage.saveAnything("firstName", it.firstName) }
+                tokens?.let { myStorage.saveAnything("lastName", it.lastName) }
+                tokens?.token?.let {
+                    myStorage.saveToken(it, SecurePreferences.TokenType.AUTH)
+                }
+                tokens?.refreshToken?.let {
+                    myStorage.saveToken(it, SecurePreferences.TokenType.REFRESH)
+                }
+                if (tokens?.token == null || tokens.refreshToken == null) {
+                    myStorage.clearTokens()
+                }
+                tokens
+            } else {
+                myStorage.clearTokens()
+                null
+            }
+        } catch (t: Throwable) {
+            Log.i("request failed", "${t.message}")
+            myStorage.clearTokens()
+            null
+        }
+    }
     override fun getAllServiceRequestsWithUserName(
         page: Int?,
         pageSize: Int?,
@@ -291,22 +336,24 @@ Log.i("getservicedetails","id: $id")
 
     override fun addCustomerWithDeviceAndService(
         body: CustomerAndDevicesAndServiceRequestsDto,
-        callback: (CustomerAndDevicesAndServiceRequestsDto?,Boolean) -> Unit
+        callback: (CustomerAndDevicesAndServiceResponseDto?,Boolean) -> Unit
     ) {
         authApi.addCustomerWithDeviceAndService(body)
-            .enqueue(object : Callback<CustomerAndDevicesAndServiceRequestsDto> {
+            .enqueue(object : Callback<CustomerAndDevicesAndServiceResponseDto> {
                 override fun onResponse(
-                    call: Call<CustomerAndDevicesAndServiceRequestsDto>,
-                    response: Response<CustomerAndDevicesAndServiceRequestsDto>
+                    call: Call<CustomerAndDevicesAndServiceResponseDto>,
+                    response: Response<CustomerAndDevicesAndServiceResponseDto>
                 ) {
+                    Log.i("POST response",response.body().toString())
                     if(response.isSuccessful&&response.body()!=null){
+                        val x =response.body()
                         callback(response.body(),true)
                     } else {
                         callback(null,false)
                     }
                 }
 
-                override fun onFailure(call: Call<CustomerAndDevicesAndServiceRequestsDto>, t: Throwable) {
+                override fun onFailure(call: Call<CustomerAndDevicesAndServiceResponseDto>, t: Throwable) {
                     Log.i("onFail->deleteServiceById","failed with reason ${t.message}")
                     callback(null,false)
                 }
@@ -338,4 +385,28 @@ Log.i("getservicedetails","id: $id")
             }
             )
     }
+    override fun getDeviceList(page: Int?,pageSize: Int?, callback: (List<Device>) -> Unit) {
+        val deviceList: MutableList<Device> = mutableListOf()
+        authApi.getAllDevices(page,pageSize).enqueue(object : Callback<List<Device>>{
+            override fun onResponse(
+                call: Call<List<Device>>,
+                response: Response<List<Device>>
+            ) {
+                Log.i("Device response ",response.body().toString())
+                if (response.isSuccessful) {
+
+                    response.body()?.let { body ->
+                        deviceList.addAll(body)
+                    }
+
+                    callback(deviceList)
+                }
+            }
+
+            override fun onFailure(call: Call<List<Device>>, t: Throwable) {
+                Log.i("onFail->getCustomerList","failed with reason ${t.message}")
+            }
+        })
+    }
+
 }
