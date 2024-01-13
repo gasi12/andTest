@@ -1,11 +1,13 @@
 package com.example.andtest.screens
 
+import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -16,6 +18,10 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
@@ -23,6 +29,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -38,6 +45,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -48,6 +56,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.andtest.R
+import com.example.andtest.api.BASE_URL
+import com.example.andtest.api.downloader.AndroidDownloader
 import com.example.andtest.api.dto.Customer
 import com.example.andtest.api.dto.CustomerAndDevicesAndServiceRequestsDto
 import com.example.andtest.api.dto.CustomerWithDevicesListDtoResponse
@@ -55,8 +65,12 @@ import com.example.andtest.api.dto.Device
 import com.example.andtest.api.dto.DeviceType
 import com.example.andtest.api.dto.ServiceRequest
 import com.example.andtest.api.service.MockService
+import com.example.andtest.components.AlertDialogExample
 import com.example.andtest.components.BoldTextComponent
 import com.example.andtest.components.ButtonComponent
+import com.example.andtest.components.CustomerDevicesComponent
+import com.example.andtest.components.CustomerInfoComponent
+import com.example.andtest.components.DeviceItem
 import com.example.andtest.components.DropDownTextField
 import com.example.andtest.components.InputNumberField
 import com.example.andtest.components.InputTextField
@@ -96,6 +110,10 @@ fun AddServiceScreen(navController: NavController, viewModel: AddServiceScreenVi
     var isExpanded  by remember { mutableStateOf(false) }
     val error = remember { mutableStateOf(false) }
     val navigationSide = remember { mutableStateOf(false) }
+    val showAlert = remember { mutableStateOf(false) }
+    val context = LocalContext.current
+    val downloader = AndroidDownloader(context)
+    val createdServiceId by viewModel.createdServiceId
     val customerWithDevices by viewModel.customerWithDevices.observeAsState(
         initial = CustomerWithDevicesListDtoResponse(
             0L,
@@ -125,9 +143,25 @@ fun AddServiceScreen(navController: NavController, viewModel: AddServiceScreenVi
     }
     LaunchedEffect(key1 = isSentSuccessfully) {
         if(isSentSuccessfully == true){
-           navController.popBackStack()
+           showAlert.value=true
         }
     }
+   if(showAlert.value)
+   {
+       AlertDialogExample(
+           onDismissRequest = {
+               showAlert.value=false
+               navController.popBackStack()},
+           onConfirmation = { showAlert.value=false
+               Log.i("response from post","to id  ${BASE_URL}services/service/${createdServiceId}/report")
+               downloader.downloadFile("${BASE_URL}services/service/$createdServiceId/report",createdServiceId?:-1)
+                                navController.popBackStack()},
+           dialogTitle ="Alert" ,
+           dialogText = "Download confirmation?",
+           icon = Icons.Default.Info
+       )}
+
+
 
     BackHandler(onBack = {
         navigationSide.value=false
@@ -222,121 +256,33 @@ fun getUserByPhone(){
                             firstName.value= customerWithDevices?.firstName ?:""
                             lastName.value=customerWithDevices?.lastName?:""
                             phoneNumber.value=customerWithDevices?.phoneNumber.toString()
-                            LazyColumn(modifier = Modifier.fillMaxWidth())
-                            {
-                                item {
-                                    Text(text = "tu beda device")
-                                }
-                                item {
-                                    Text(text = customerWithDevices?.firstName?:"")
-                                }
-                                items(customerWithDevices!!.devices) { device ->
+Column {
+    CustomerDevicesComponent(customerWithDevices = customerWithDevices, onDeviceClick =
+    {
+        skipPage.value = true
+        deviceName.value = it.deviceName
+        deviceSerialNumber.value =
+            it.deviceSerialNumber
+        deviceType.value = it.deviceType.toString()
+        focusManager.clearFocus()
+        coroutineScope.launch {
+            pagerState.animateScrollToPage(pagerState.currentPage + 2)
+        }
+    }
+    )
+    ButtonComponent(labelValue = stringResource(id = R.string.addNewDevice), onClick =
+    {skipPage.value=false
+        navigationSide.value=true
+        coroutineScope.launch {
 
-                                    Box(
-                                        modifier = Modifier
-//                                            .height(200.dp)
-                                            .padding(2.dp)
-                                            .fillMaxSize()
-                                            .background(
-                                                MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.3f),
-                                                RoundedCornerShape(15.dp)
-                                            )
-                                            .combinedClickable(
-                                                onLongClick = {  },
-                                                onClick = {
-                                                    skipPage.value = true
-                                                    deviceName.value = device.deviceName
-                                                    deviceSerialNumber.value = device.deviceSerialNumber
-                                                    deviceType.value = device.deviceType.toString()
-                                                    focusManager.clearFocus()
-                                                    coroutineScope.launch {
-                                                        pagerState.animateScrollToPage(pagerState.currentPage + 2)
-                                                    }
-                                                }),
-                                        contentAlignment = Alignment.Center,
-                                        propagateMinConstraints = true
-                                    ) {
-                                        Column(modifier= Modifier.padding(10.dp)) {
-                                            Text(
-                                                text = "Device",
-                                                color = MaterialTheme.colorScheme.onSecondaryContainer,
-                                                modifier = Modifier.padding(0.dp),
-                                                fontWeight = FontWeight.Bold,
-                                            )
-                                            Text(
-                                                text = device.deviceName,
-                                                color = MaterialTheme.colorScheme.onSecondaryContainer,
-                                                modifier = Modifier.padding(0.dp)
-                                            )
-                                            Text(
-                                                text = "Device type",
-                                                color = MaterialTheme.colorScheme.onSecondaryContainer,
-                                                modifier = Modifier.padding(0.dp),
-                                                fontWeight = FontWeight.Bold,
-                                            )
-                                            Text(
-                                                text = device.deviceType.visibleName,
-                                                color = MaterialTheme.colorScheme.onSecondaryContainer,
-                                                modifier = Modifier.padding(0.dp)
-                                            )
-                                            Text(
-                                                text = "Device serial number",
-                                                color = MaterialTheme.colorScheme.onSecondaryContainer,
-                                                modifier = Modifier.padding(0.dp),
-                                                fontWeight = FontWeight.Bold,
-                                            )
-                                            Text(
-                                                text = device.deviceSerialNumber,
-                                                color = MaterialTheme.colorScheme.onSecondaryContainer,
-                                                modifier = Modifier.padding(0.dp)
-                                            )
-                                        }
-                                    }
-//                                    Box(
-//                                        modifier = Modifier
-//                                            .padding(10.dp)
-//                                            .fillMaxSize()
-////                                            .background(Color.LightGray)
-//                                            .combinedClickable(
-//                                                onLongClick = { },
-//                                                onClick = {
-//
-//                                                    skipPage.value = true
-//                                                    deviceName.value = device.deviceName
-//                                                    deviceSerialNumber.value =
-//                                                        device.deviceSerialNumber
-//                                                    deviceType.value = device.deviceType.toString()
-//                                                    focusManager.clearFocus()
-//                                                    coroutineScope.launch {
-//                                                        pagerState.animateScrollToPage(pagerState.currentPage + 2)
-//                                                    }
-//                                                }),
-//                                        contentAlignment = Alignment.Center,
-//                                        propagateMinConstraints = true
-//                                    ) {
-//                                        Text(
-//                                            text = device.toString(),
-//                                            color = Color(
-//                                                (0.05F ),
-//                                                .5F,
-//                                                .5F
-//                                            )
-//                                        )
-//                                    }
-                                }
-                                item {
-                                    ButtonComponent(labelValue = stringResource(id = R.string.addNewDevice), onClick =
-                                    {skipPage.value=false
-                                        navigationSide.value=true
-                                        coroutineScope.launch {
+            pagerState.animateScrollToPage(pagerState.currentPage + 1)
+        }
+    })
 
-                                            pagerState.animateScrollToPage(pagerState.currentPage + 1)
-                                        }
-                                    })
+}
 
 
-                                }
-                            }
+
                         }
                         false -> {
 
@@ -493,7 +439,7 @@ fun getUserByPhone(){
                             ButtonComponent(
                                 labelValue = stringResource(id = R.string.submit), onClick = {
                                     price.value = price.value.let { if (it == "") "0" else it }
-if(description.value.isNotEmpty()&&deviceName.value.isNotEmpty()&&deviceSerialNumber.value.isNotEmpty()){
+                        if(description.value.isNotEmpty()&&deviceName.value.isNotEmpty()&&deviceSerialNumber.value.isNotEmpty()){
                         viewModel.addCustomerWithDeviceAndService(
                             CustomerAndDevicesAndServiceRequestsDto(
                                 Customer(

@@ -17,7 +17,7 @@ class AddServiceScreenViewModel(
     val customerWithDevices : MutableLiveData<CustomerWithDevicesListDtoResponse?> = MutableLiveData()
     val isSentSuccessfully: MutableState<Boolean?> = mutableStateOf(null)
     val isDataPresent: MutableState<Boolean?> = mutableStateOf(null)
-
+    val createdServiceId: MutableState<Long?> = mutableStateOf(null)
 
 fun getUserWithDevicesByPhoneNumber(phoneNumber: Long){
 
@@ -40,6 +40,7 @@ fun getUserWithDevicesByPhoneNumber(phoneNumber: Long){
 
         authService.addCustomerWithDeviceAndService(body){
             data,isSuccess->
+              createdServiceId.value=data?.serviceRequest?.id
             isSentSuccessfully.value = isSuccess
             sharedViewModel.refreshServices()
         }
