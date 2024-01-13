@@ -1,12 +1,9 @@
 package com.example.andtest.navigation
 
 import android.util.Log
-import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.VisibilityThreshold
 import androidx.compose.animation.core.spring
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.slideIn
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.runtime.Composable
@@ -23,21 +20,24 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.andtest.SecurePreferences
 import com.example.andtest.api.dto.RefreshTokenRequest
-import com.example.andtest.api.service.AuthService
 import com.example.andtest.api.service.ServiceInterface
 import com.example.andtest.screens.AddServiceScreen
 import com.example.andtest.screens.AddStatusScreen
+import com.example.andtest.screens.CustomerDetailsScreen
 import com.example.andtest.screens.EditService
 import com.example.andtest.screens.ServicesSummaryScreen
 import com.example.andtest.screens.ServiceDetailsScreen
 
 import com.example.andtest.screens.LoginScreen
 import com.example.andtest.screens.MainScreen
+import com.example.andtest.screens.QRScanner
 import com.example.andtest.screens.SignupScreen
 import com.example.andtest.viewModels.AddServiceScreenViewModel
 import com.example.andtest.viewModels.AddServiceScreenViewModelFactory
 import com.example.andtest.viewModels.AddStatusScreenViewModel
 import com.example.andtest.viewModels.AddStatusScreenViewModelFactory
+import com.example.andtest.viewModels.CustomerDetailsFactory
+import com.example.andtest.viewModels.CustomerDetailsViewModel
 import com.example.andtest.viewModels.EditServiceScreenViewModel
 import com.example.andtest.viewModels.EditServiceScreenViewModelFactory
 import com.example.andtest.viewModels.ServicesSummaryScreenFactory
@@ -60,7 +60,7 @@ import com.example.andtest.viewModels.SharedViewModelFactory
     val sharedViewModel: SharedViewModel =
         viewModel(factory = SharedViewModelFactory(authService))
 
-    Log.i("refreshtokendowyslania", refreshToken)
+    Log.i("navigacja refreshtokendowyslania", refreshToken)
     LaunchedEffect(Unit) {
         authService.refreshToken(RefreshTokenRequest(refreshToken)) { tokens, isSuccess ->
 
@@ -116,13 +116,13 @@ import com.example.andtest.viewModels.SharedViewModelFactory
                     viewModel(factory = LoginViewModelFactory(authService))
                 LoginScreen(navController = navController, viewModel = viewModel)
             }
-            composable(route = Screen.SUMMARY.name) {
+            composable(route = Screen.SERVICESUMMARY.name) {
                 Log.i("navigation route", "$startDestination")
                 val viewModel: ServicesSummaryScreenViewModel =
                     viewModel(factory = ServicesSummaryScreenFactory(authService,sharedViewModel))
                 ServicesSummaryScreen(viewModel, navController)
             }
-            composable(route = "${Screen.DETAILS.name}/{serviceId}") { backStackEntry ->
+            composable(route = "${Screen.SERVICEDETAILS.name}/{serviceId}") { backStackEntry ->
                 val id = backStackEntry.arguments?.getString("serviceId")?.toLong()
                 if (id != null) {
                     val viewModel: ServiceDetailsViewModel =
@@ -156,6 +156,18 @@ import com.example.andtest.viewModels.SharedViewModelFactory
                             )
                         )
                     EditService(navController, viewModel)
+                }
+            }
+            composable(route = Screen.QRScanner.name){
+                Log.i("navigation route", "$route")
+                QRScanner(context = LocalContext.current)
+            }
+            composable(route = "${Screen.CUSTOMERDETAILS.name}/{id}") { backStackEntry ->
+                val id = backStackEntry.arguments?.getString("id")?.toLong()
+                if (id != null) {
+                    val viewModel: CustomerDetailsViewModel =
+                        viewModel(factory = CustomerDetailsFactory(authService, id, sharedViewModel))
+                    CustomerDetailsScreen(viewModel, navController)
                 }
             }
         }
