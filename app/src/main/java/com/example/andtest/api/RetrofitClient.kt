@@ -12,8 +12,8 @@ import java.time.ZoneId
 
 
 //
-//const val BASE_URL ="http://192.168.1.87:8080/" //pi
-const val BASE_URL ="http://100.72.70.142:8080/" //vpn
+const val BASE_URL ="http://192.168.1.87:8080/" //pi
+//const val BASE_URL ="http://100.72.70.142:8080/" //vpn
 //const val BASE_URL ="http://192.168.1.108:8080/" //local
 object RetrofitClient {
     fun getClient(context: Context): Retrofit {
