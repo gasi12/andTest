@@ -25,18 +25,19 @@ open class ServiceDetailsViewModel(
     open val serviceRequest: MutableLiveData<ServiceRequestWithDetailsDto> = MutableLiveData()
     open val isDeleted = mutableStateOf(false)
     open val isDataLoaded = mutableStateOf(false)
+    val isInit = mutableStateOf(false)
     init
     {
+        getServiceDetails()
 
-
-        getServiceDetails(id)
     }
 
-    private fun getServiceDetails(id:Long) {
+    fun getServiceDetails() {
 
         authService.getServiceDetails(id)  { serviceRequestsResponse ->
             isDataLoaded.value=true
             serviceRequest.value = serviceRequestsResponse
+            isInit.value=true
         }
     }
     fun deleteThisServiceRequest(){

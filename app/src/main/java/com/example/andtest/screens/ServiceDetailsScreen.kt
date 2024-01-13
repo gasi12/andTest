@@ -3,10 +3,12 @@ package com.example.andtest.screens
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -17,6 +19,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -31,7 +34,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.PlatformTextStyle
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -44,6 +50,8 @@ import com.example.andtest.api.dto.Status
 import com.example.andtest.api.dto.StatusHistory
 import com.example.andtest.components.AlertDialogExample
 import com.example.andtest.components.ButtonComponent
+import com.example.andtest.components.CustomerInfoComponent
+import com.example.andtest.components.DeviceItem
 import com.example.andtest.components.NormalTextComponent
 import com.example.andtest.components.shimmerEffect
 import com.example.andtest.navigation.Screen
@@ -59,9 +67,14 @@ fun ServiceDetailsScreen(viewModel: ServiceDetailsViewModel, navController: NavC
     val serviceRequest by viewModel.serviceRequest.observeAsState()
     val showDialog = remember { mutableStateOf(false) }
     val isDeleted by viewModel.isDeleted
+    val isInit by viewModel.isInit
     LaunchedEffect(isDeleted){
         if(isDeleted)
             navController.navigateUp()
+    }
+    LaunchedEffect(Unit){
+        if(isInit)
+      viewModel.getServiceDetails()
     }
 
 
@@ -71,10 +84,10 @@ fun ServiceDetailsScreen(viewModel: ServiceDetailsViewModel, navController: NavC
         Scaffold (
             topBar = {
                 TopAppBar(
-                    modifier = Modifier.background(Color.Yellow),
+                    modifier = Modifier.background(MaterialTheme.colorScheme.primaryContainer),
                     title = { Text("Service details screen hopefully") },
                     colors = topAppBarColors(
-                        containerColor = Color.LightGray,
+                        containerColor = MaterialTheme.colorScheme.tertiaryContainer,
                     ),
                     navigationIcon = {
                         IconButton(onClick = { navController.navigateUp()}) {
@@ -86,7 +99,7 @@ fun ServiceDetailsScreen(viewModel: ServiceDetailsViewModel, navController: NavC
             content ={Box(modifier = Modifier.padding(top = 64.dp)){
                 Box(modifier =Modifier.fillMaxWidth() ){
                     Column (Modifier.verticalScroll(rememberScrollState())){
-                        Box(Modifier.background(Color.Red)){
+                        Box(){
                          SummaryList(serviceRequest)
                         }
                         ButtonComponent(labelValue = "Delete",
@@ -124,6 +137,10 @@ fun ServiceDetailsScreen(viewModel: ServiceDetailsViewModel, navController: NavC
 
 }
 @Preview
+@Composable
+fun RowWithValuePreview(){
+    RowWithValue(row = "ogien", description ="pizda")
+}
 @Composable
 fun SummaryList(serviceRequest: ServiceRequestWithDetailsDto? = ServiceRequestWithDetailsDto(
     id = 1L,
@@ -170,21 +187,11 @@ fun SummaryList(serviceRequest: ServiceRequestWithDetailsDto? = ServiceRequestWi
       RowWithValue(row = serviceRequest?.device?.deviceSerialNumber.toString(), description ="Serial number" )
 }
 
+DeviceItem(deviceName = serviceRequest?.device?.deviceName.toString(), deviceType =serviceRequest?.device?.deviceType?.visibleName.toString() , deviceSerialNumber =serviceRequest?.device?.deviceSerialNumber.toString() ) {
+    
+}
+CustomerInfoComponent(firstName = serviceRequest?.customer?.firstName.toString(), lastName = serviceRequest?.customer?.lastName.toString(), phoneNumber =serviceRequest?.customer?.phoneNumber.toString() )
 
-
-        Column(modifier = Modifier
-            .background(Color.LightGray)
-            .fillMaxWidth()){
-            Text(text = "Customer")
-            Text(text = "ID")
-            Text(text = serviceRequest?.customer?.id.toString())
-            Text(text = "First Name")
-            Text(text = serviceRequest?.customer?.firstName.toString())
-            Text(text = "Last Name")
-            Text(text = serviceRequest?.customer?.lastName.toString())
-            Text(text = "Phone")
-            Text(text = serviceRequest?.customer?.phoneNumber.toString())
-        }
         Text(text = "Status History")
         serviceRequest?.statusHistoryList?.forEach { statusHistory ->
             Column(
@@ -205,14 +212,35 @@ fun SummaryList(serviceRequest: ServiceRequestWithDetailsDto? = ServiceRequestWi
         }
     }
 }
+
 @Composable
-fun RowWithValue(row:String?,description: String,modifier: Modifier= Modifier){
+fun RowWithValue(row: String?, description: String, modifier: Modifier = Modifier, overflow: Boolean = false) {
+    Column(modifier= Modifier.padding(vertical = 2.dp) ) {
+        Text(style = TextStyle(
+            platformStyle = PlatformTextStyle(
+                includeFontPadding = false,
+            ),
+        ),
+            text = description,
+            fontWeight = FontWeight.Normal,
+            fontSize = 12.sp,
+            modifier = Modifier.padding(bottom = 0.dp), // Reduced bottom padding
+            color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.4F)
+        )
 
-    Column(modifier = Modifier.padding(bottom = 10.dp)) {
-        Text(text = description, fontWeight = FontWeight.Normal, fontSize = 12.sp, modifier = Modifier.alpha(0.4f).padding(bottom = 1.dp))
-        Text(text = row?:"", fontWeight = FontWeight.Bold, fontSize = 20.sp, modifier = if (row?.startsWith("null") == true) Modifier.shimmerEffect().alpha(0.0f)  else Modifier.alpha(0.4f))
+        Text(style = TextStyle(
+            platformStyle = PlatformTextStyle(
+                includeFontPadding = false,
+            ),
+        ),
+            text = row ?: "",
+            fontWeight = FontWeight.Bold,
+            fontSize = 16.sp,
+            modifier = if (row?.startsWith("null") == true) Modifier
+                .shimmerEffect()
+                .alpha(0.0f) else Modifier.heightIn(max = 50.dp),
+            color = MaterialTheme.colorScheme.onSecondaryContainer,
+            overflow = if (overflow) TextOverflow.Ellipsis else TextOverflow.Visible
+        )
     }
-    }
-
-
-
+}
