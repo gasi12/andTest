@@ -4,13 +4,25 @@ import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -29,6 +41,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.geometry.Offset
@@ -51,6 +64,8 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.andtest.R
+import com.example.andtest.api.dto.CustomerWithDevicesListDtoResponse
+import com.example.andtest.api.dto.Device
 
 
 @Composable
@@ -420,4 +435,191 @@ fun Modifier.shimmerEffect(): Modifier = composed {
         .onGloballyPositioned {
             size = it.size
         }
+}
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun DeviceItem(
+    deviceName: String,
+    deviceType: String,
+    deviceSerialNumber: String,
+    onDeviceClick: () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .padding(2.dp)
+            .fillMaxWidth()
+            .background(
+                MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.3f),
+                RoundedCornerShape(15.dp)
+            )
+            .combinedClickable(
+                onLongClick = { },
+                onClick = onDeviceClick
+            ),
+        contentAlignment = Alignment.Center,
+        propagateMinConstraints = true
+    ) {
+        Column(modifier = Modifier.padding(10.dp)) {
+            Text(
+                text = "Device",
+                color = MaterialTheme.colorScheme.onSecondaryContainer,
+                modifier = Modifier.padding(0.dp),
+                fontWeight = FontWeight.Bold,
+            )
+            Text(
+                text = deviceName,
+                color = MaterialTheme.colorScheme.onSecondaryContainer,
+                modifier = Modifier.padding(0.dp)
+            )
+            Text(
+                text = "Device type",
+                color = MaterialTheme.colorScheme.onSecondaryContainer,
+                modifier = Modifier.padding(0.dp),
+                fontWeight = FontWeight.Bold,
+            )
+            Text(
+                text = deviceType,
+                color = MaterialTheme.colorScheme.onSecondaryContainer,
+                modifier = Modifier.padding(0.dp)
+            )
+            Text(
+                text = "Device serial number",
+                color = MaterialTheme.colorScheme.onSecondaryContainer,
+                modifier = Modifier.padding(0.dp),
+                fontWeight = FontWeight.Bold,
+            )
+            Text(
+                text = deviceSerialNumber,
+                color = MaterialTheme.colorScheme.onSecondaryContainer,
+                modifier = Modifier.padding(0.dp)
+            )
+        }
+    }
+}
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun DeviceItemIcons(
+    deviceName: String,
+    deviceType: String,
+    deviceSerialNumber: String,
+    onDeviceClick: () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .padding(2.dp)
+            .fillMaxWidth()
+            .background(
+                MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.3f),
+                RoundedCornerShape(15.dp)
+            )
+            .combinedClickable(
+                onLongClick = { },
+                onClick = onDeviceClick
+            ),
+        contentAlignment = Alignment.Center,
+        propagateMinConstraints = true
+    ) {
+        Column(modifier = Modifier.padding(10.dp)) {
+            Text(
+                text = "Device",
+                color = MaterialTheme.colorScheme.onSecondaryContainer,
+                modifier = Modifier.padding(0.dp),
+                fontWeight = FontWeight.Bold,
+            )
+            Text(
+                text = deviceName,
+                color = MaterialTheme.colorScheme.onSecondaryContainer,
+                modifier = Modifier.padding(0.dp)
+            )
+            Text(
+                text = "Device type",
+                color = MaterialTheme.colorScheme.onSecondaryContainer,
+                modifier = Modifier.padding(0.dp),
+                fontWeight = FontWeight.Bold,
+            )
+            Text(
+                text = deviceType,
+                color = MaterialTheme.colorScheme.onSecondaryContainer,
+                modifier = Modifier.padding(0.dp)
+            )
+            Text(
+                text = "Device serial number",
+                color = MaterialTheme.colorScheme.onSecondaryContainer,
+                modifier = Modifier.padding(0.dp),
+                fontWeight = FontWeight.Bold,
+            )
+            Text(
+                text = deviceSerialNumber,
+                color = MaterialTheme.colorScheme.onSecondaryContainer,
+                modifier = Modifier.padding(0.dp)
+            )
+        }
+    }
+}
+@Composable
+fun CustomerInfoComponent(firstName:String,lastName:String,phoneNumber: String) {
+    Box(
+        modifier = Modifier
+//                                            .height(200.dp)
+            .padding(2.dp)
+            .fillMaxWidth()
+            .background(
+                MaterialTheme.colorScheme.primaryContainer,
+                RoundedCornerShape(15.dp)
+            )
+    ) {
+        Column(
+            modifier = Modifier
+//                                            .height(200.dp)
+                .padding(10.dp)
+                .fillMaxWidth()
+        ) {
+            Row {
+                Icon(
+                    Icons.Default.AccountCircle,
+                    contentDescription = "Customer",
+                    modifier = Modifier.padding(end = 10.dp)
+                )
+//                                                Text(stringResource(id = R.string.firstName).plus(" "))
+                Text(text = firstName)
+                Text(text = " ")
+                Text(text = lastName)
+            }
+
+            Row {
+                Icon(
+                    Icons.Default.Phone,
+                    contentDescription = "Customer",
+                    modifier = Modifier.padding(end = 10.dp)
+                )
+//                                                Text(stringResource(id = R.string.phoneNumber).plus(" "))
+                Text(text = phoneNumber)
+            }
+        }
+    }
+}
+@Composable
+fun CustomerDevicesComponent(
+    customerWithDevices: CustomerWithDevicesListDtoResponse?,
+    onDeviceClick: (Device) -> Unit
+) {
+    Column(modifier = Modifier.fillMaxWidth()) {
+        CustomerInfoComponent(
+            firstName = customerWithDevices?.firstName ?: "",
+            lastName = customerWithDevices?.lastName ?: "",
+            phoneNumber = customerWithDevices?.phoneNumber.toString()
+        )
+        LazyColumn {
+            customerWithDevices?.devices?.let { devices ->
+                items(devices) { device ->
+                    DeviceItem(
+                        deviceName = device.deviceName,
+                        deviceType = device.deviceType.visibleName,
+                        deviceSerialNumber = device.deviceSerialNumber,
+                        onDeviceClick = { onDeviceClick(device) }
+                    )
+                }
+            }
+        }
+    }
 }

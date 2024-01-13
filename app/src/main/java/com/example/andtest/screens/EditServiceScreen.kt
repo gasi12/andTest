@@ -2,6 +2,7 @@ package com.example.andtest.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
+
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -15,6 +16,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
@@ -28,9 +30,11 @@ import com.example.andtest.api.dto.ServiceRequest
 import com.example.andtest.api.service.MockService
 import com.example.andtest.components.BoldTextComponent
 import com.example.andtest.components.ButtonComponent
+import com.example.andtest.components.InputNumberField
 import com.example.andtest.components.InputTextField
 import com.example.andtest.components.MultiLineInputTextField
 import com.example.andtest.components.NormalTextComponent
+import com.example.andtest.navigation.Screen
 import com.example.andtest.viewModels.EditServiceScreenViewModel
 
 
@@ -70,12 +74,11 @@ fun EditService(navController: NavController, viewModel: EditServiceScreenViewMo
 
 
 
-            InputTextField(labelValue = stringResource(id = R.string.deviceName), data = price)
+            InputNumberField(labelValue = stringResource(id = R.string.price), data = price)
+            MultiLineInputTextField(labelValue = stringResource(id = R.string.description), data = description, maxLines = 2)
             Spacer(modifier = Modifier
                 .fillMaxWidth()
                 .height(80.dp))
-            MultiLineInputTextField(labelValue = stringResource(id = R.string.description), data = description, maxLines = 2)
-
             ButtonComponent(
                 labelValue = stringResource(id = R.string.submit ), onClick = {
                     isLoading.value=true
@@ -83,32 +86,24 @@ fun EditService(navController: NavController, viewModel: EditServiceScreenViewMo
                     viewModel.editService(
                         ServiceRequest(description.value,price.value.toLong())
                     )
-
                 }
             )
             if(isLoading.value){
-                CircularProgressIndicator()
+                CircularProgressIndicator(modifier = Modifier.align(alignment = Alignment.CenterHorizontally))
             }
         }
         LaunchedEffect(isSentSuccessfully) {
             when (isSentSuccessfully) {
                 true -> {
-//                    navController.navigate("${Screen.DETAILS.name}/${id.value}") {
-//                        popUpTo("${Screen.DETAILS.name}/${id.value}")
-//                        {
-//                            inclusive = true
-//                        }
-//                    }
+                    viewModel.sharedViewModel.refreshServices()
                     navController.navigateUp()
                     isLoading.value=false
                 }
                 false ->
                 {
-
                     isLoading.value=false
                 }
                 null -> {
-
                 }
             }
         }

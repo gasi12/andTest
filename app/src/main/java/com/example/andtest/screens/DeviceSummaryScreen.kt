@@ -47,23 +47,22 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavController
-
 import com.example.andtest.navigation.Screen
-import com.example.andtest.viewModels.CustomerSummaryScreenViewModel
+import com.example.andtest.viewModels.DeviceSummaryScreenViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterialApi::class, ExperimentalFoundationApi::class)
 @Composable
-fun CustomerSummaryScreen(viewModel: CustomerSummaryScreenViewModel, navController: NavController){
+fun DeviceSummaryScreen(viewModel: DeviceSummaryScreenViewModel, navController: NavController){
     Button(onClick ={ navController.navigate(Screen.REGISTER.name)}) {
-        Text(text = "customerscreen")
+        Text(text = "devicescreen")
     }
 
     var topBarQuery by viewModel.sharedViewModel.topBarQuery
-    val customers by viewModel.sharedViewModel.customers.observeAsState(initial = emptyList())
-    val isLastPageEmpty by viewModel.sharedViewModel.isLastPageEmptyCustomers
+    val devices by viewModel.sharedViewModel.devices.observeAsState(initial = emptyList())
+    val isLastPageEmpty by viewModel.sharedViewModel.isLastPageEmptyDevices
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
     val itemsToDisplay = 100
@@ -71,21 +70,21 @@ fun CustomerSummaryScreen(viewModel: CustomerSummaryScreenViewModel, navControll
     val endOfListReached by derivedStateOf {
         listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index == listState.layoutInfo.totalItemsCount - 1
     }
-    val filteredCustomers = customers.filter { it.phoneNumber.toString().startsWith(topBarQuery)  }
+    val filteredDevices = devices.filter { it.deviceSerialNumber.toString().startsWith(topBarQuery)  }
 
     LaunchedEffect(endOfListReached) {
-        if (endOfListReached && initialDataLoaded == true && customers.isNotEmpty()) {
+        if (endOfListReached && initialDataLoaded == true && devices.isNotEmpty()) {
             Log.i("whos calling page?","Launcheffect")
-            Log.i("filtered sr",filteredCustomers.toString())
+            Log.i("filtered sr",filteredDevices.toString())
             coroutineScope.launch {
-                if (topBarQuery.isEmpty() && filteredCustomers.size < itemsToDisplay) {
-                    viewModel.sharedViewModel.getAllCustomers(40)
+                if (topBarQuery.isEmpty() && filteredDevices.size < itemsToDisplay) {
+                    viewModel.sharedViewModel.getAllDevices(40)
                 } else if (topBarQuery.isNotEmpty() && !isLastPageEmpty!!) {
                     var shouldContinue = true
                     while(shouldContinue){
                         delay(400)
-                        viewModel.sharedViewModel.getAllCustomers(40)
-                        if (filteredCustomers.isNotEmpty()) {
+                        viewModel.sharedViewModel.getAllDevices(40)
+                        if (filteredDevices.isNotEmpty()) {
                             shouldContinue = false
                         }
                     }
@@ -100,9 +99,9 @@ fun CustomerSummaryScreen(viewModel: CustomerSummaryScreenViewModel, navControll
     fun refresh() = refreshScope.launch {
         refreshing = true
         delay(500)
-        viewModel.sharedViewModel.refreshCustomers()
+        viewModel.sharedViewModel.refreshDevices()
         refreshing = false
-        Log.i("customer summary", "refreshing")
+        Log.i("device summary", "refreshing")
     }
     val state = rememberPullRefreshState(refreshing, ::refresh)
 
@@ -124,11 +123,11 @@ fun CustomerSummaryScreen(viewModel: CustomerSummaryScreenViewModel, navControll
                         item {
                             Text(text = topBarQuery, textAlign = TextAlign.Center)
                         }
-                        if(customers.isNullOrEmpty()){
+                        if(devices.isNullOrEmpty()){
                             item { CircularProgressIndicator() }
                         }
                         else {
-                            items(filteredCustomers.take(itemsToDisplay)) { customer ->
+                            items(filteredDevices.take(itemsToDisplay)) { device ->
                                 var showDialog by remember { mutableStateOf(false) }
                                 Box(
                                     modifier = Modifier
@@ -143,31 +142,31 @@ fun CustomerSummaryScreen(viewModel: CustomerSummaryScreenViewModel, navControll
                                         .combinedClickable(
                                             onLongClick = { showDialog = true },
                                             onClick = {
-                                                navController.navigate("${Screen.CUSTOMERDETAILS.name}/${customer.phoneNumber}")
+//                                                navController.navigate("${Screen.CUSTOMERDETAILS.name}/${device.phoneNumber}") //todo
                                             }),
                                     contentAlignment = Alignment.Center,
                                     propagateMinConstraints = true
                                 ) {
                                     Column(modifier= Modifier.padding(10.dp)) {
                                         Text(
-                                            text = "Customer",
+                                            text = "Device",
                                             color = MaterialTheme.colorScheme.onSecondaryContainer,
                                             modifier = Modifier.padding(0.dp),
                                             fontWeight = FontWeight.Bold,
                                         )
                                         Text(
-                                            text = customer.firstName.plus(" ").plus(customer.lastName),
+                                            text = device.deviceType.visibleName.plus(" ").plus(device.deviceName),
                                             color = MaterialTheme.colorScheme.onSecondaryContainer,
                                             modifier = Modifier.padding(0.dp)
                                         )
                                         Text(
-                                            text = "Phone number",
+                                            text = "serial number",
                                             color = MaterialTheme.colorScheme.onSecondaryContainer,
                                             modifier = Modifier.padding(0.dp),
                                             fontWeight = FontWeight.Bold,
                                         )
                                         Text(
-                                            text = customer.phoneNumber.toString(),
+                                            text = device.deviceSerialNumber,
                                             color = MaterialTheme.colorScheme.onSecondaryContainer,
                                             modifier = Modifier.padding(0.dp)
                                         )
