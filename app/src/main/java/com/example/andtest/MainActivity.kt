@@ -26,7 +26,7 @@ class MainActivity : ComponentActivity() {
 //        WindowCompat.setDecorFitsSystemWindows(window, false)
          val storage = SecurePreferences.getInstance(this)
         Log.i("storage on boot",storage.getToken(SecurePreferences.TokenType.REFRESH).toString())
-        authService = AuthService(applicationContext)
+        val authService = AuthService.getInstance(applicationContext)
 
 
         setContent {
