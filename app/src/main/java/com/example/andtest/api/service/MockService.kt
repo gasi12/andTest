@@ -2,6 +2,7 @@ package com.example.andtest.api.service
 
 import com.example.andtest.api.dto.Customer
 import com.example.andtest.api.dto.CustomerAndDevicesAndServiceRequestsDto
+import com.example.andtest.api.dto.CustomerAndDevicesAndServiceResponseDto
 import com.example.andtest.api.dto.CustomerWithDevicesListDtoResponse
 import com.example.andtest.api.dto.Device
 import com.example.andtest.api.dto.LoginRequest
@@ -18,6 +19,10 @@ import java.time.LocalDateTime
 import java.util.Date
 
 class MockService :ServiceInterface{
+    override fun getDeviceList(page: Int?, pageSize: Int?, callback: (List<Device>) -> Unit) {
+        TODO("Not yet implemented")
+    }
+
     override fun loginCall(body: LoginRequest, callback: (LoginResponse?, Boolean) -> Unit) {
         // Simulate a successful response
         val loginResponse = LoginResponse("mockAuthToken", "mockRefreshToken","mockusername","mockfirstname","mocklastname")
@@ -104,7 +109,7 @@ class MockService :ServiceInterface{
 
     override fun addCustomerWithDeviceAndService(
         body: CustomerAndDevicesAndServiceRequestsDto,
-        callback: (CustomerAndDevicesAndServiceRequestsDto?, Boolean) -> Unit
+        callback: (CustomerAndDevicesAndServiceResponseDto?, Boolean) -> Unit
     ) {
         TODO("Not yet implemented")
     }
