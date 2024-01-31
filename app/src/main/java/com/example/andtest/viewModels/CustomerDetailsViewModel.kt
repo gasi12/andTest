@@ -15,8 +15,8 @@ class CustomerDetailsViewModel(
 ): ViewModel() {
 
 //    fun shareServiceRequest(price:Long,description:String){
-//        val serviceRequest = ServiceRequest(description,price)
-//        sharedViewModel.sharedServiceRequest.value= serviceRequest
+//        val serviceRequestEditor = ServiceRequestEditor(description,price)
+//        sharedViewModel.sharedServiceRequestEditor.value= serviceRequestEditor
 //        sharedViewModel.sharedServiceRequestId.value =id
 //    }
     val customerWithDevices: MutableLiveData<CustomerWithDevicesListDtoResponse?> = MutableLiveData()

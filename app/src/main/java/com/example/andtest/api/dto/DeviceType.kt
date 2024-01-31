@@ -9,5 +9,5 @@ enum class DeviceType(val visibleName: String){
     PRINTER("Printer or scanner"),
     MONITOR("Monitor"),
     GAME_CONSOLE("Console"),
-    OTHER("")
+    OTHER("Other")
 }

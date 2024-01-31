@@ -2,9 +2,8 @@ package com.example.andtest.api.dto
 
 import android.util.Log
 import java.time.LocalDateTime
-import java.util.Date
 
-data class ServiceRequest(
+data class ServiceRequestEditor(
     val description: String,
     val price: Long
 )
@@ -46,7 +45,22 @@ data class ServiceRequestWithDetailsDto(
     val customer: Customer
 )
 
+data class ServiceRequest(
+    val id: Long,
+    val description: String,
+    val lastStatus: Status,
+    val endDate: LocalDateTime,
+    val startDate: LocalDateTime,
+    val price: Long
+)
 
+data class DeviceWithServiceRequestList(
+    val id: Long,
+    val deviceName: String,
+    val deviceSerialNumber: String,
+    val deviceType: DeviceType,
+    val serviceRequestList: List<ServiceRequest>
+)
 fun String.formatToDateTime():String{
 
     try {

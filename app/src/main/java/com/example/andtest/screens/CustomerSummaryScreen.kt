@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -47,6 +48,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavController
+import com.example.andtest.components.CustomerCardAlt
 
 import com.example.andtest.navigation.Screen
 import com.example.andtest.viewModels.CustomerSummaryScreenViewModel
@@ -117,7 +119,7 @@ fun CustomerSummaryScreen(viewModel: CustomerSummaryScreenViewModel, navControll
                     LazyColumn(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 10.dp),
+                            .padding(horizontal = 20.dp),
                         horizontalAlignment = Alignment.CenterHorizontally,
                         state = listState
                     ) {
@@ -132,9 +134,10 @@ fun CustomerSummaryScreen(viewModel: CustomerSummaryScreenViewModel, navControll
                                 var showDialog by remember { mutableStateOf(false) }
                                 Box(
                                     modifier = Modifier
-                                        .height(200.dp)
-                                        .padding(2.dp)
-                                        .fillMaxSize()
+//                                        .height(200.dp)
+                                        .padding(5.dp)
+//                                        .fillMaxSize()
+                                        .widthIn(max = 500.dp)
                                         .background(
                                             MaterialTheme.colorScheme.secondaryContainer
                                                 .copy(alpha = 0.3f),
@@ -148,31 +151,32 @@ fun CustomerSummaryScreen(viewModel: CustomerSummaryScreenViewModel, navControll
                                     contentAlignment = Alignment.Center,
                                     propagateMinConstraints = true
                                 ) {
-                                    Column(modifier= Modifier.padding(10.dp)) {
-                                        Text(
-                                            text = "Customer",
-                                            color = MaterialTheme.colorScheme.onSecondaryContainer,
-                                            modifier = Modifier.padding(0.dp),
-                                            fontWeight = FontWeight.Bold,
-                                        )
-                                        Text(
-                                            text = customer.firstName.plus(" ").plus(customer.lastName),
-                                            color = MaterialTheme.colorScheme.onSecondaryContainer,
-                                            modifier = Modifier.padding(0.dp)
-                                        )
-                                        Text(
-                                            text = "Phone number",
-                                            color = MaterialTheme.colorScheme.onSecondaryContainer,
-                                            modifier = Modifier.padding(0.dp),
-                                            fontWeight = FontWeight.Bold,
-                                        )
-                                        Text(
-                                            text = customer.phoneNumber.toString(),
-                                            color = MaterialTheme.colorScheme.onSecondaryContainer,
-                                            modifier = Modifier.padding(0.dp)
-                                        )
-
-                                    }
+                                    CustomerCardAlt(customer = customer)
+//                                    Column(modifier= Modifier.padding(10.dp)) {
+//                                        Text(
+//                                            text = "Customer",
+//                                            color = MaterialTheme.colorScheme.onSecondaryContainer,
+//                                            modifier = Modifier.padding(0.dp),
+//                                            fontWeight = FontWeight.Bold,
+//                                        )
+//                                        Text(
+//                                            text = customer.firstName.plus(" ").plus(customer.lastName),
+//                                            color = MaterialTheme.colorScheme.onSecondaryContainer,
+//                                            modifier = Modifier.padding(0.dp)
+//                                        )
+//                                        Text(
+//                                            text = "Phone number",
+//                                            color = MaterialTheme.colorScheme.onSecondaryContainer,
+//                                            modifier = Modifier.padding(0.dp),
+//                                            fontWeight = FontWeight.Bold,
+//                                        )
+//                                        Text(
+//                                            text = customer.phoneNumber.toString(),
+//                                            color = MaterialTheme.colorScheme.onSecondaryContainer,
+//                                            modifier = Modifier.padding(0.dp)
+//                                        )
+//
+//                                    }
                                 }
                                 if (showDialog) {
                                     Dialog(onDismissRequest = { showDialog = false }) {

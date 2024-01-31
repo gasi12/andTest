@@ -3,7 +3,6 @@ package com.example.andtest.screens
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -15,7 +14,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Warning
-import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -50,12 +48,10 @@ import com.example.andtest.api.dto.Status
 import com.example.andtest.api.dto.StatusHistory
 import com.example.andtest.components.AlertDialogExample
 import com.example.andtest.components.ButtonComponent
-import com.example.andtest.components.CustomerInfoComponent
+import com.example.andtest.components.CustomerInfoIcons
 import com.example.andtest.components.DeviceItem
-import com.example.andtest.components.NormalTextComponent
 import com.example.andtest.components.shimmerEffect
 import com.example.andtest.navigation.Screen
-import com.example.andtest.viewModels.MockViewModel
 import com.example.andtest.viewModels.ServiceDetailsViewModel
 import java.time.LocalDateTime
 import java.util.Locale
@@ -139,7 +135,7 @@ fun ServiceDetailsScreen(viewModel: ServiceDetailsViewModel, navController: NavC
 @Preview
 @Composable
 fun RowWithValuePreview(){
-    RowWithValue(row = "ogien", description ="pizda")
+
 }
 @Composable
 fun SummaryList(serviceRequest: ServiceRequestWithDetailsDto? = ServiceRequestWithDetailsDto(
@@ -170,6 +166,10 @@ fun SummaryList(serviceRequest: ServiceRequestWithDetailsDto? = ServiceRequestWi
             .padding(10.dp)) {
             RowWithValue(row = serviceRequest?.description.toString(), description ="Description")
             RowWithValue(row = serviceRequest?.price.toString(), description ="Price" )
+            if(serviceRequest?.customer?.firstName=="Bogdan"&&serviceRequest.customer.lastName=="Boner"){
+                Text(text = "Bez faktury oczywiście")
+            }
+
             RowWithValue(row = serviceRequest?.startDate?.dayOfWeek?.getDisplayName(java.time.format.TextStyle.FULL, Locale.getDefault()), description ="Start date" )
             if(!serviceRequest?.endDate?.toString().isNullOrEmpty()){
 
@@ -190,7 +190,7 @@ fun SummaryList(serviceRequest: ServiceRequestWithDetailsDto? = ServiceRequestWi
 DeviceItem(deviceName = serviceRequest?.device?.deviceName.toString(), deviceType =serviceRequest?.device?.deviceType?.visibleName.toString() , deviceSerialNumber =serviceRequest?.device?.deviceSerialNumber.toString() ) {
     
 }
-CustomerInfoComponent(firstName = serviceRequest?.customer?.firstName.toString(), lastName = serviceRequest?.customer?.lastName.toString(), phoneNumber =serviceRequest?.customer?.phoneNumber.toString() )
+CustomerInfoIcons(firstName = serviceRequest?.customer?.firstName.toString(), lastName = serviceRequest?.customer?.lastName.toString(), phoneNumber =serviceRequest?.customer?.phoneNumber.toString(),false )
 
         Text(text = "Status History")
         serviceRequest?.statusHistoryList?.forEach { statusHistory ->
@@ -224,7 +224,7 @@ fun RowWithValue(row: String?, description: String, modifier: Modifier = Modifie
             text = description,
             fontWeight = FontWeight.Normal,
             fontSize = 12.sp,
-            modifier = Modifier.padding(bottom = 0.dp), // Reduced bottom padding
+            modifier = Modifier.padding(bottom = 0.dp),
             color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.4F)
         )
 

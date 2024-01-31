@@ -1,5 +1,6 @@
 package com.example.andtest.screens
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -11,11 +12,16 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
@@ -33,13 +39,58 @@ import com.example.andtest.components.ButtonComponent
 import com.example.andtest.components.InputTextField
 import com.example.andtest.components.NormalTextComponent
 import com.example.andtest.components.PasswordField
+import com.example.andtest.viewModels.SignupScreenViewModel
+import kotlinx.coroutines.launch
 
 @Composable
-fun SignupScreen(navController: NavController) {
+fun SignupScreen(navController: NavController,viewModel: SignupScreenViewModel) {
     val firstName = remember{mutableStateOf("")}
     val lastName = remember{mutableStateOf("")}
     val email = remember{mutableStateOf("")}
     val password = remember{mutableStateOf("")}
+    val snackState = remember { SnackbarHostState() }
+    val scope  = rememberCoroutineScope()
+val navigateToHome by viewModel.navigateToHome
+    val notInvited by viewModel.notInvited
+    LaunchedEffect(navigateToHome) {
+        when (navigateToHome) {
+            true -> {
+
+                navController.navigate("Home") {
+                    popUpTo(navController.graph.id) {
+                        inclusive = true
+                    }
+                }
+               // isLoading.value=false
+            }
+            false ->
+            {
+
+                //isLoading.value=false
+            }
+            null -> {
+
+            }
+        }
+    }
+    LaunchedEffect(notInvited){
+        when(notInvited){
+            true ->{
+                scope.launch {
+                    Log.i("A","SNAC")
+                    snackState.showSnackbar("You have not been invited, please contact the administrator")
+                    viewModel.notInvited.value=false
+                }
+            }
+            false ->{
+
+            }
+            null -> {
+
+            }
+        }
+    }
+
     Surface(
         modifier = Modifier
             .fillMaxSize()
@@ -64,10 +115,11 @@ fun SignupScreen(navController: NavController) {
                     .height(80.dp))
                 ButtonComponent(
                     labelValue = "BUTTON", onClick = {
-
+                        viewModel.register(firstName.value,lastName.value,email.value,password.value)
                     }
                 )
             }
+            SnackbarHost(hostState = snackState)
             Column (modifier= Modifier
                 .fillMaxWidth()
                 .background(Color.Blue)){
@@ -100,10 +152,3 @@ fun SignupScreen(navController: NavController) {
 
     }
 }
-@PreviewScreenSizes
-@Preview
-@Composable
-fun DefaultPreviewSingupScreen() {
-    SignupScreen(navController = rememberNavController())
-}
-

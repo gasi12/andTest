@@ -4,32 +4,21 @@ import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.Phone
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonColors
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -48,10 +37,8 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
@@ -63,14 +50,12 @@ import com.example.andtest.api.dto.CustomerAndDevicesAndServiceRequestsDto
 import com.example.andtest.api.dto.CustomerWithDevicesListDtoResponse
 import com.example.andtest.api.dto.Device
 import com.example.andtest.api.dto.DeviceType
-import com.example.andtest.api.dto.ServiceRequest
+import com.example.andtest.api.dto.ServiceRequestEditor
 import com.example.andtest.api.service.MockService
 import com.example.andtest.components.AlertDialogExample
 import com.example.andtest.components.BoldTextComponent
 import com.example.andtest.components.ButtonComponent
-import com.example.andtest.components.CustomerDevicesComponent
-import com.example.andtest.components.CustomerInfoComponent
-import com.example.andtest.components.DeviceItem
+import com.example.andtest.components.CustomerDevicesIcons
 import com.example.andtest.components.DropDownTextField
 import com.example.andtest.components.InputNumberField
 import com.example.andtest.components.InputTextField
@@ -151,7 +136,8 @@ fun AddServiceScreen(navController: NavController, viewModel: AddServiceScreenVi
        AlertDialogExample(
            onDismissRequest = {
                showAlert.value=false
-               navController.popBackStack()},
+               navController.popBackStack()
+                              },
            onConfirmation = { showAlert.value=false
                Log.i("response from post","to id  ${BASE_URL}services/service/${createdServiceId}/report")
                downloader.downloadFile("${BASE_URL}services/service/$createdServiceId/report",createdServiceId?:-1)
@@ -257,7 +243,7 @@ fun getUserByPhone(){
                             lastName.value=customerWithDevices?.lastName?:""
                             phoneNumber.value=customerWithDevices?.phoneNumber.toString()
 Column {
-    CustomerDevicesComponent(customerWithDevices = customerWithDevices, onDeviceClick =
+    CustomerDevicesIcons(customerWithDevices = customerWithDevices, onDeviceClick =
     {
         skipPage.value = true
         deviceName.value = it.deviceName
@@ -454,7 +440,7 @@ Column {
                                     deviceSerialNumber.value,
                                     DeviceType.valueOf(deviceType.value)
                                 ),
-                                ServiceRequest(
+                                ServiceRequestEditor(
                                     description.value,
                                     price.value.toLong()
                                 )

@@ -13,7 +13,10 @@ enum class Screen(val visibleName: String) {
     CUSTOMERSUMMARY("Customer Summary"),
     QRScanner("QR Scanner"),
     CUSTOMERDETAILS("Customer Details"),
-    DEVICESUMMARY("Device Summary")
+    DEVICESUMMARY("Device Summary"),
+    DEVICEDETAILS("Device Details"),
+    ADMINSCREEN("Admin Screen"),
+    INVITEUSER("Invite User")
 }
 
 sealed class NavigationItem(val route: String) {
@@ -31,5 +34,7 @@ sealed class NavigationItem(val route: String) {
 
     object CustomerDetails : NavigationItem(Screen.CUSTOMERDETAILS.name)
 
-    object DeviceDetails : NavigationItem(Screen.DEVICESUMMARY.name)
+    object DeviceSummary : NavigationItem(Screen.DEVICESUMMARY.name)
+
+    object DeviceDetails : NavigationItem(Screen.DEVICEDETAILS.name)
 }

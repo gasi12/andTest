@@ -1,5 +1,6 @@
 package com.example.andtest.components
 
+import android.util.Log
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
@@ -11,12 +12,14 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.magnifier
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -44,6 +47,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -52,6 +56,7 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -60,12 +65,20 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.andtest.R
+import com.example.andtest.api.dto.Customer
 import com.example.andtest.api.dto.CustomerWithDevicesListDtoResponse
 import com.example.andtest.api.dto.Device
+import com.example.andtest.api.dto.ServiceRequest
+import com.example.andtest.api.dto.ServiceRequestWithUserNameDtoResponse
+import com.example.andtest.api.dto.UserDto
+import com.example.andtest.screens.RowWithValue
+import com.example.andtest.screens.formatDateToReadableLocaleToString
+import com.example.andtest.screens.formatDateToShortLocaleToString
 
 
 @Composable
@@ -417,19 +430,19 @@ fun Modifier.shimmerEffect(): Modifier = composed {
         initialValue = -2 * size.width.toFloat(),
         targetValue = 2 * size.width.toFloat(),
         animationSpec = infiniteRepeatable(
-            animation = tween(1000)
+            animation = tween(1400)
         ), label = ""
     )
 
     background(
         brush = Brush.linearGradient(
             colors = listOf(
-                Color(0xFFB8B5B5),
-                Color(0xFF8F8B8B),
-                Color(0xFFB8B5B5),
+                MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.2f),
+                MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.6f),
+                MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.2f),
             ),
             start = Offset(startOffsetX, 0f),
-            end = Offset(startOffsetX + size.width.toFloat(), size.height.toFloat())
+            end = Offset(startOffsetX + size.width.toFloat()/1, size.height.toFloat())
         )
     )
         .onGloballyPositioned {
@@ -446,7 +459,7 @@ fun DeviceItem(
 ) {
     Box(
         modifier = Modifier
-            .padding(2.dp)
+            .padding(6.dp)
             .fillMaxWidth()
             .background(
                 MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.3f),
@@ -502,14 +515,16 @@ fun DeviceItemIcons(
     deviceName: String,
     deviceType: String,
     deviceSerialNumber: String,
-    onDeviceClick: () -> Unit
+    onDeviceClick: () -> Unit = {},
+    primaryColor:Boolean
 ) {
     Box(
         modifier = Modifier
             .padding(2.dp)
             .fillMaxWidth()
             .background(
-                MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.3f),
+                if (primaryColor) MaterialTheme.colorScheme.primaryContainer
+                else MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.3f),
                 RoundedCornerShape(15.dp)
             )
             .combinedClickable(
@@ -520,106 +535,298 @@ fun DeviceItemIcons(
         propagateMinConstraints = true
     ) {
         Column(modifier = Modifier.padding(10.dp)) {
-            Text(
-                text = "Device",
-                color = MaterialTheme.colorScheme.onSecondaryContainer,
-                modifier = Modifier.padding(0.dp),
-                fontWeight = FontWeight.Bold,
-            )
-            Text(
-                text = deviceName,
-                color = MaterialTheme.colorScheme.onSecondaryContainer,
-                modifier = Modifier.padding(0.dp)
-            )
-            Text(
-                text = "Device type",
-                color = MaterialTheme.colorScheme.onSecondaryContainer,
-                modifier = Modifier.padding(0.dp),
-                fontWeight = FontWeight.Bold,
-            )
-            Text(
-                text = deviceType,
-                color = MaterialTheme.colorScheme.onSecondaryContainer,
-                modifier = Modifier.padding(0.dp)
-            )
-            Text(
-                text = "Device serial number",
-                color = MaterialTheme.colorScheme.onSecondaryContainer,
-                modifier = Modifier.padding(0.dp),
-                fontWeight = FontWeight.Bold,
-            )
-            Text(
-                text = deviceSerialNumber,
-                color = MaterialTheme.colorScheme.onSecondaryContainer,
-                modifier = Modifier.padding(0.dp)
-            )
+            SecondaryText(text = "Device name", modifier = Modifier.padding(horizontal = 35.dp))
+            Row(Modifier.padding(vertical = 3.dp)) {
+                Icon(
+                    painterResource(id = R.drawable.deviceinfo),
+                    contentDescription = "Device name",
+                    modifier = Modifier.padding(end = 10.dp),
+                    tint =   if (primaryColor) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSecondaryContainer
+                )
+
+                Text(text = deviceName,
+                    color = if (primaryColor) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSecondaryContainer,
+                    modifier = Modifier.padding(0.dp))
+            }
+            SecondaryText(text = "Device type", modifier = Modifier.padding(horizontal = 35.dp))
+            Row(Modifier.padding(vertical = 3.dp)){
+                Icon(
+                    painterResource(id = R.drawable.devicetype),
+                    contentDescription = "Device type",
+                    modifier = Modifier.padding(end = 10.dp),
+                    tint =   if (primaryColor) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSecondaryContainer
+                )
+
+                Text(text = deviceType,
+                    color = if (primaryColor) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSecondaryContainer,
+                    modifier = Modifier.padding(0.dp))
+            }
+            SecondaryText(text = "Serial number", modifier = Modifier.padding(horizontal = 35.dp))
+            Row(Modifier.padding(vertical = 3.dp)){
+                Icon(
+                    painterResource(id = R.drawable.serialnumber),
+                    contentDescription = "serial",
+                    modifier = Modifier.padding(end = 10.dp),
+                    tint =   if (primaryColor) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSecondaryContainer
+                )
+
+                Text(text = deviceSerialNumber,
+                    color = if (primaryColor) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSecondaryContainer,
+                    modifier = Modifier.padding(0.dp))
+
+            }
         }
     }
 }
 @Composable
-fun CustomerInfoComponent(firstName:String,lastName:String,phoneNumber: String) {
+fun CustomerInfoIcons(firstName: String?, lastName: String?, phoneNumber: String?, primaryColor: Boolean) {
     Box(
         modifier = Modifier
-//                                            .height(200.dp)
             .padding(2.dp)
             .fillMaxWidth()
             .background(
-                MaterialTheme.colorScheme.primaryContainer,
+                if (primaryColor) MaterialTheme.colorScheme.primaryContainer
+                else MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.3f),
                 RoundedCornerShape(15.dp)
             )
     ) {
         Column(
             modifier = Modifier
-//                                            .height(200.dp)
                 .padding(10.dp)
                 .fillMaxWidth()
         ) {
-            Row {
+            SecondaryText(text = "Name", modifier = Modifier.padding(horizontal = 35.dp))
+            Row(Modifier.padding(vertical = 3.dp)) {
                 Icon(
                     Icons.Default.AccountCircle,
                     contentDescription = "Customer",
-                    modifier = Modifier.padding(end = 10.dp)
+                    modifier = Modifier.padding(end = 10.dp),
+                    tint = if (primaryColor) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSecondaryContainer
                 )
-//                                                Text(stringResource(id = R.string.firstName).plus(" "))
-                Text(text = firstName)
-                Text(text = " ")
-                Text(text = lastName)
-            }
 
-            Row {
+                if (firstName.toString()=="null"&&lastName.toString()=="null"){
+                    Text(text = "", modifier = Modifier
+                        .fillMaxWidth()
+                        .shimmerEffect())
+                }else{
+                    Text(
+                        text = (firstName ?: "null") + " " + (lastName ?: "null"),
+                        color = if (primaryColor) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSecondaryContainer,
+                        modifier = Modifier
+                    )   
+                }
+              
+            }
+            SecondaryText(text = "Phone number", modifier = Modifier.padding(horizontal = 35.dp))
+            Row(Modifier.padding(vertical = 3.dp)) {
                 Icon(
                     Icons.Default.Phone,
                     contentDescription = "Customer",
-                    modifier = Modifier.padding(end = 10.dp)
+                    modifier = Modifier.padding(end = 10.dp),
+                    tint = if (primaryColor) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSecondaryContainer
                 )
-//                                                Text(stringResource(id = R.string.phoneNumber).plus(" "))
-                Text(text = phoneNumber)
+                Text(
+                    text = phoneNumber ?: "",
+                    color = if (primaryColor) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSecondaryContainer,
+                    modifier = Modifier.then(if (phoneNumber.isNullOrEmpty()||phoneNumber=="null") Modifier.shimmerEffect() else Modifier)
+                )
             }
         }
     }
 }
 @Composable
-fun CustomerDevicesComponent(
+fun CustomerDevicesIcons(
     customerWithDevices: CustomerWithDevicesListDtoResponse?,
     onDeviceClick: (Device) -> Unit
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
-        CustomerInfoComponent(
+        CustomerInfoIcons(
             firstName = customerWithDevices?.firstName ?: "",
             lastName = customerWithDevices?.lastName ?: "",
-            phoneNumber = customerWithDevices?.phoneNumber.toString()
+            phoneNumber = customerWithDevices?.phoneNumber.toString(),
+            primaryColor = true
         )
         LazyColumn {
             customerWithDevices?.devices?.let { devices ->
                 items(devices) { device ->
-                    DeviceItem(
+                    DeviceItemIcons(
                         deviceName = device.deviceName,
                         deviceType = device.deviceType.visibleName,
                         deviceSerialNumber = device.deviceSerialNumber,
-                        onDeviceClick = { onDeviceClick(device) }
+                        onDeviceClick = { onDeviceClick(device) },
+                        primaryColor = false
                     )
                 }
             }
         }
     }
+}
+@Composable
+fun ServiceSummaryCardAlt(serviceRequest: ServiceRequestWithUserNameDtoResponse){
+    Column(modifier= Modifier
+        .padding(15.dp)
+    ) {
+        Row {
+            RowWithValue(row =serviceRequest.customerFirstName.plus(" ").plus(serviceRequest.customerLastName) , description = "Customer")
+            Spacer(Modifier.weight(1f))
+            Text(
+                text = formatDateToShortLocaleToString(serviceRequest.startDate),
+                color = MaterialTheme.colorScheme.onSecondaryContainer,
+                modifier = Modifier.padding(0.dp),
+                fontWeight = FontWeight.Bold,
+            )
+        }
+        RowWithValue(row =serviceRequest.deviceName , description = "Device")
+        RowWithValue(row =serviceRequest.lastStatus.visibleName , description = "Status")
+        RowWithValue(row = serviceRequest.description, description ="Description",overflow = true )
+    }
+}
+@Composable
+fun CustomerCardAlt(customer: Customer){
+    Column(modifier= Modifier
+        .padding(15.dp)
+        .fillMaxWidth()
+    ) {
+        RowWithValue(row =customer.firstName.plus(" ").plus(customer.lastName) , description = "Customer")
+        RowWithValue(row =customer.phoneNumber.toString() , description = "Phone number")
+    }
+}
+@Composable
+fun DeviceCardAlt(device: Device){
+    Column(modifier= Modifier
+        .padding(15.dp)
+        .fillMaxWidth()
+    ) {
+        RowWithValue(row =device.deviceName , description = "Name")
+        RowWithValue(row =device.deviceType.visibleName , description = "Type")
+        RowWithValue(row =device.deviceSerialNumber , description = "Serial number")
+    }
+}
+@Composable
+fun UserCard(user: UserDto){
+    Column(modifier= Modifier
+        .padding(15.dp)
+        .fillMaxWidth()
+    ) {
+        RowWithValue(row =user.firstName.plus(" ").plus(user.lastName) , description = "Name")
+        RowWithValue(row =user.email , description = "Email")
+        RowWithValue(row =user.role , description = "Role")
+    }
+}
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun ServiceRequestIcons(
+    serviceRequest: ServiceRequest?,
+    onServiceClick: () -> Unit = {},
+    primaryColor: Boolean
+) {
+    Box(
+        modifier = Modifier
+            .padding(2.dp)
+            .fillMaxWidth()
+            .background(
+                if (primaryColor) MaterialTheme.colorScheme.primaryContainer
+                else MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.3f),
+                RoundedCornerShape(15.dp)
+            )
+            .combinedClickable(
+                onLongClick = { },
+                onClick = onServiceClick
+            ),
+        contentAlignment = Alignment.Center,
+        propagateMinConstraints = true
+    ) {
+        Column(modifier = Modifier.padding(10.dp)) {
+            SecondaryText(text = "Description", modifier = Modifier.padding(horizontal = 35.dp))
+            Row(Modifier.padding(vertical = 3.dp)) {
+                // Placeholder for description icon
+                Icon(
+                    painterResource(id = R.drawable.person), // Replace with actual icon resource
+                    contentDescription = "Description",
+                    modifier = Modifier.padding(end = 10.dp),
+                    tint = if (primaryColor) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSecondaryContainer,
+                )
+
+                Text(text = serviceRequest?.description?:"",
+                    color = if (primaryColor) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSecondaryContainer,
+                    modifier = Modifier.padding(0.dp),
+                    overflow =  TextOverflow.Ellipsis,
+                    maxLines = 3
+
+                )
+            }
+            SecondaryText(text = "Last Status", modifier = Modifier.padding(horizontal = 35.dp))
+            Row(Modifier.padding(vertical = 3.dp)){
+                // Placeholder for last status icon
+                Icon(
+                    painterResource(id = R.drawable.person), // Replace with actual icon resource
+                    contentDescription = "Last Status",
+                    modifier = Modifier.padding(end = 10.dp),
+                    tint =if (primaryColor) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSecondaryContainer,
+                )
+
+                Text(text = serviceRequest?.lastStatus?.visibleName?:"",
+                    color = if (primaryColor) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSecondaryContainer,
+                    modifier = Modifier.padding(0.dp))
+            }
+            SecondaryText(text = "End date", modifier = Modifier.padding(horizontal = 35.dp))
+            Row(Modifier.padding(vertical = 3.dp)){
+                // Placeholder for end date icon
+                Icon(
+                    painterResource(id = R.drawable.person), // Replace with actual icon resource
+                    contentDescription = "End Date",
+                    modifier = Modifier.padding(end = 10.dp),
+                    tint = if (primaryColor) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSecondaryContainer,
+                )
+
+                Text(text = if(serviceRequest?.endDate!=null)formatDateToReadableLocaleToString(serviceRequest.endDate) else "No end date",
+                    color = if (primaryColor) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSecondaryContainer,
+                    modifier = Modifier.padding(0.dp))
+            }
+            SecondaryText(text = "Start date", modifier = Modifier.padding(horizontal = 35.dp))
+            Row(Modifier.padding(vertical = 3.dp)){
+                // Placeholder for start date icon
+                Icon(
+                    painterResource(id = R.drawable.person), // Replace with actual icon resource
+                    contentDescription = "Start Date",
+                    modifier = Modifier.padding(end = 10.dp),
+                    tint = if (primaryColor) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSecondaryContainer,
+                )
+
+                Text(text = if(serviceRequest?.startDate!=null)formatDateToReadableLocaleToString(serviceRequest.startDate) else "???",
+                    color = if (primaryColor) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSecondaryContainer,
+                    modifier = Modifier.padding(0.dp))
+            }
+            SecondaryText(text = "Price", modifier = Modifier.padding(horizontal = 35.dp))
+            Row(Modifier.padding(vertical = 3.dp)){
+                // Placeholder for price icon
+                Icon(
+                    painterResource(id = R.drawable.person), // Replace with actual icon resource
+                    contentDescription = "Price",
+                    modifier = Modifier.padding(end = 10.dp),
+                    tint = if (primaryColor) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSecondaryContainer,
+                )
+
+                Text(text = if(serviceRequest?.price==0L)"No price" else serviceRequest?.price.toString(),
+                    color = if (primaryColor) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSecondaryContainer,
+                    modifier = Modifier.padding(0.dp))
+            }
+        }
+    }
+}
+@Composable
+fun SecondaryText(text:String, modifier: Modifier= Modifier){
+    Text(style = TextStyle(
+        platformStyle = PlatformTextStyle(
+            includeFontPadding = false,
+        ),
+    ),
+        text = text,
+        fontWeight = FontWeight.Normal,
+        fontSize = 12.sp,
+        modifier = Modifier
+            .padding(bottom = 0.dp)
+            .then(modifier),
+        color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.4F)
+    )
 }

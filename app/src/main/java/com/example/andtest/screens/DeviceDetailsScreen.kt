@@ -1,10 +1,10 @@
 package com.example.andtest.screens
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -29,17 +29,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.example.andtest.components.CustomerDevicesIcons
-import com.example.andtest.components.CustomerInfoIcons
 import com.example.andtest.components.DeviceItemIcons
+import com.example.andtest.components.ServiceRequestIcons
 import com.example.andtest.navigation.Screen
-import com.example.andtest.viewModels.CustomerDetailsViewModel
+import com.example.andtest.viewModels.DeviceDetailsViewModel
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CustomerDetailsScreen(viewModel: CustomerDetailsViewModel, navController: NavController) {
-    val customerWithDevices by viewModel.customerWithDevices.observeAsState()
+fun DeviceDetailsScreen(viewModel: DeviceDetailsViewModel, navController: NavController) {
+    val device = viewModel.device.observeAsState()
     val showDialog = remember { mutableStateOf(false) }
     val isDeleted by viewModel.isDeleted
     LaunchedEffect(isDeleted){
@@ -66,45 +65,45 @@ fun CustomerDetailsScreen(viewModel: CustomerDetailsViewModel, navController: Na
                     }
                 )
             },
-            content ={
+            content = {
 
-                Column(modifier = Modifier
-                    .padding(it)
-                    .padding(horizontal = 20.dp)) {
-                    Column(modifier = Modifier.fillMaxWidth()) {
+                Column(
+                    modifier = Modifier
+                        .padding(it)
+                        .padding(horizontal = 20.dp)
+                ) {
+
+//                    if (device.value?.serviceRequestList != null) {
                         LazyColumn {
                             item{
-                                CustomerInfoIcons(
-                                    firstName = customerWithDevices?.firstName,
-                                    lastName = customerWithDevices?.lastName,
-                                    phoneNumber = customerWithDevices?.phoneNumber.toString(),
-                                    primaryColor = true
+                                DeviceItemIcons(
+                                    device.value?.deviceName ?: "",
+                                    device.value?.deviceType?.visibleName ?: "",
+                                    device.value?.deviceSerialNumber ?: "",
+                                    primaryColor = true,
+                                    onDeviceClick = { Log.i("WTF",device.value?.serviceRequestList.toString())}
                                 )
                             }
-                            customerWithDevices?.devices?.let { devices ->
-                                items(devices) { device ->
+                            device.value?.serviceRequestList?.let { serviceRequestList ->
+                                items(serviceRequestList) { serviceRequest ->
 
-                                    DeviceItemIcons(
-                                        deviceName = device.deviceName,
-                                        deviceType = device.deviceType.visibleName,
-                                        deviceSerialNumber = device.deviceSerialNumber,
-                                        onDeviceClick = { navController.navigate("${Screen.DEVICEDETAILS.name}/${device.deviceSerialNumber}")  },
-                                        primaryColor = false
+                                    ServiceRequestIcons(
+                                        serviceRequest = serviceRequest,
+                                        primaryColor = false,
+                                        onServiceClick = { navController.navigate("${Screen.SERVICEDETAILS.name}/${serviceRequest.id}") }
                                     )
                                 }
                             }
                         }
-                    }
-                }
 
-                      
                 }
-
+            }
 
 
         )
 
     }
-
+LaunchedEffect(Unit){
+    Log.i("wtfinit",device.value?.serviceRequestList.toString())
 }
-
+}

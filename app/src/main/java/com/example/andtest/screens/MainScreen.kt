@@ -139,7 +139,12 @@ fun MainScreen (authService:ServiceInterface,navController: NavController,shared
                                 .aspectRatio(1f)
                                 .background(MaterialTheme.colorScheme.primary, shape = CircleShape),
                                 contentAlignment = Alignment.Center){
-                                Text(text = firstName.substring(0,1).uppercase())
+                                Text(text = firstName.substring(0,1).uppercase(),
+                                    style = TextStyle(
+                                        fontSize = 35.sp,
+                                        fontWeight = FontWeight.Normal),
+                                    color = Color.White
+                                )
 
                             }
                             Spacer(modifier = Modifier.weight(1f, true))
@@ -191,6 +196,25 @@ fun MainScreen (authService:ServiceInterface,navController: NavController,shared
                             },
                             modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
                         )
+                        if(securePreferences.getAnything("role") == "ADMIN"){
+                            NavigationDrawerItem(
+                                icon = { Icon(painterResource(id = R.drawable.baseline_visibility_off_24), contentDescription = null) },
+                                label = { Text("Admin screen") },
+                                selected = selectedItem == Screen.ADMINSCREEN.name,
+                                onClick = {
+                                    scope.launch {
+                                        drawerState.close()
+
+                                    }
+                                    navController.navigate(Screen.ADMINSCREEN.name)
+
+
+//                                    sharedViewModel.selectedItem.value = Screen.ADMINSCREEN.name
+                                },
+                                modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                            )
+                        }
+
 
                         Spacer(modifier = Modifier.weight(1f, true))
 
@@ -248,7 +272,7 @@ fun MainScreen (authService:ServiceInterface,navController: NavController,shared
 
                                     }
                                 )) {
-                                Icon(painter = painterResource(R.drawable.photo_camera_fill0_wght400_grad0_opsz24),"Scan qr")
+                                Icon(painter = painterResource(R.drawable.qrscanner),"Scan qr")
                             }
                         },
                         scrollBehavior = scrollBehavior,
@@ -318,6 +342,7 @@ fun MainScreen (authService:ServiceInterface,navController: NavController,shared
                                 viewModel(factory = DeviceSummaryScreenFactory(authService,sharedViewModel))
                             DeviceSummaryScreen(viewModel,navController)
                         }
+
                         }
                 }
 

@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -53,14 +54,17 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavController
 import com.example.andtest.api.dto.DeviceType
-import com.example.andtest.api.dto.ServiceRequest
+import com.example.andtest.api.dto.ServiceRequestEditor
 import com.example.andtest.api.dto.ServiceRequestWithUserNameDtoResponse
 import com.example.andtest.api.dto.Status
+import com.example.andtest.components.ServiceSummaryCardAlt
 import com.example.andtest.navigation.Screen
 import com.example.andtest.viewModels.ServicesSummaryScreenViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import java.time.format.TextStyle
 import java.util.Locale
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -133,8 +137,9 @@ fun ServicesSummaryScreen(viewModel: ServicesSummaryScreenViewModel, navControll
                     ) {
                         item {
                             Text(text = topBarQuery, textAlign = TextAlign.Center)
+//                            Text(text = "TEST SHIMMERU", modifier = Modifier.fillMaxWidth().shimmerEffect().alpha(0f))
                         }
-                        if(serviceRequests.isNullOrEmpty()){
+                        if(serviceRequests.isNullOrEmpty()&&initialDataLoaded!=true){
                             item { CircularProgressIndicator() }
                         }
                         else {
@@ -144,28 +149,30 @@ fun ServicesSummaryScreen(viewModel: ServicesSummaryScreenViewModel, navControll
                                     modifier = Modifier
 //                                        .heightIn(max=200.dp)
                                         .padding(5.dp)
-                                        .fillMaxSize()
+//                                        .fillMaxSize()
+                                        .widthIn(max = 500.dp)
                                         .background(
                                             MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.3f),
                                             RoundedCornerShape(15.dp)
                                         )
                                         .combinedClickable(
                                             onLongClick = {
-                                                Log.i("WFT",serviceRequest.toString())
-//                                                showDialog = true
-                                                          },
+//
+                                                showDialog = true
+                                            },
                                             onClick = { navController.navigate("${Screen.SERVICEDETAILS.name}/${serviceRequest.id}") }),
-                                    contentAlignment = Alignment.Center,
-                                    propagateMinConstraints = true
+                                            contentAlignment = Alignment.Center,
+                                            propagateMinConstraints = true
                                 ) {
+
                                 ServiceSummaryCardAlt(serviceRequest = serviceRequest)
                                 }
                                 if (showDialog) {
                                     Dialog(onDismissRequest = { showDialog = false }) {
                                         Column(
                                             modifier = Modifier
-                                                .width(280.dp) // Set the width as per your requirement
-                                                .height(200.dp) // Set the height as per your requirement
+                                                .width(280.dp)
+                                                .height(200.dp)
                                                 .background(MaterialTheme.colorScheme.background)
                                         ) {
                                             TextButton(
@@ -182,7 +189,7 @@ fun ServicesSummaryScreen(viewModel: ServicesSummaryScreenViewModel, navControll
                                             TextButton(
                                                 onClick = {
                                                           viewModel.sharedViewModel.sharedServiceRequestId.value=serviceRequest.id
-                                                    viewModel.sharedViewModel.sharedServiceRequest.value= ServiceRequest(serviceRequest.description,serviceRequest.price);
+                                                    viewModel.sharedViewModel.sharedServiceRequestEditor.value= ServiceRequestEditor(serviceRequest.description,serviceRequest.price);
                                                     navController.navigate("${Screen.EDITSERVICE.name}/${serviceRequest.id}")
                                                 },
                                                 modifier = Modifier
@@ -195,7 +202,7 @@ fun ServicesSummaryScreen(viewModel: ServicesSummaryScreenViewModel, navControll
                                             }
                                             TextButton(
                                                 onClick = {
-                                                    viewModel.sharedViewModel.deleteById(serviceRequest.id)
+                                                    viewModel.sharedViewModel.deleteServiceRequestById(serviceRequest.id)
                                                     showDialog = false
                                                 },
                                                 modifier = Modifier
@@ -224,17 +231,20 @@ fun ServicesSummaryScreen(viewModel: ServicesSummaryScreenViewModel, navControll
     }
 }
 fun formatDateToShortLocaleToString(date: LocalDateTime):String{
-
     val locale: Locale = Locale.getDefault()
-    return date.dayOfMonth.toString().plus(" ").plus(date.month.getDisplayName(java.time.format.TextStyle.SHORT,locale))
-
+    return date.dayOfMonth.toString().plus(" ").plus(date.month.getDisplayName(TextStyle.SHORT,locale))
+}
+fun formatDateToReadableLocaleToString(date: LocalDateTime):String{
+    val locale: Locale = Locale.getDefault()
+    val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm", locale)
+    return date.format(formatter)
 }
 @Preview
 @Composable
 fun CardPreview(){
     val serviceRequest = ServiceRequestWithUserNameDtoResponse(
         id = 1337L,
-        lastStatus = Status.PENDING.name,
+        lastStatus = Status.PENDING,
         description = "Service description",
         endDate = LocalDateTime.now().plusDays(5),
         startDate = LocalDateTime.now(),
@@ -246,7 +256,6 @@ fun CardPreview(){
         customerPhoneNumber = "1234535",
         deviceName = "Dell",
         deviceType = DeviceType.DESKTOP
-
     )
 ServiceSummaryCardAlt(serviceRequest = serviceRequest)
 }
@@ -273,7 +282,7 @@ fun ServiceSummaryCard(serviceRequest: ServiceRequestWithUserNameDtoResponse){
             color = MaterialTheme.colorScheme.onSecondaryContainer,
             modifier = Modifier.padding(0.dp)
         )
-//                                        RowWithValue(row =serviceRequest.deviceType.visibleName.plus(" ").plus(serviceRequest.deviceName) , description = "Device")
+//                                        RowWithValue(row =serviceRequestEditor.deviceType.visibleName.plus(" ").plus(serviceRequestEditor.deviceName) , description = "Device")
         Text(
             text = "Device",
             color = MaterialTheme.colorScheme.onSecondaryContainer,
@@ -299,26 +308,5 @@ fun ServiceSummaryCard(serviceRequest: ServiceRequestWithUserNameDtoResponse){
                 .heightIn(max = 50.dp), // Set your desired maximum height here
             overflow = TextOverflow.Ellipsis
         )
-    }
-}
-@Composable
-fun ServiceSummaryCardAlt(serviceRequest: ServiceRequestWithUserNameDtoResponse){
-    Column(modifier= Modifier
-        .padding(15.dp)
-//        .padding(vertical = 5.dp)
-
-        ) {
-        Row {
-            RowWithValue(row =serviceRequest.customerFirstName.plus(" ").plus(serviceRequest.customerLastName) , description = "Customer")
-            Spacer(Modifier.weight(1f))
-            Text(
-                text = formatDateToShortLocaleToString(serviceRequest.startDate),
-                color = MaterialTheme.colorScheme.onSecondaryContainer,
-                modifier = Modifier.padding(0.dp),
-                fontWeight = FontWeight.Bold,
-            )
-        }
-        RowWithValue(row =serviceRequest.deviceName , description = "Device")
-        RowWithValue(row = serviceRequest.description, description ="Description",overflow = true )
     }
 }

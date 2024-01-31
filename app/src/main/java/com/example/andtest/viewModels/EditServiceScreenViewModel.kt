@@ -3,11 +3,9 @@ package com.example.andtest.viewModels
 import android.util.Log
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.example.andtest.api.dto.ServiceRequest
-import com.example.andtest.api.dto.ServiceRequestWithDetailsDto
+import com.example.andtest.api.dto.ServiceRequestEditor
 import com.example.andtest.api.service.ServiceInterface
 
 class EditServiceScreenViewModel(private val authService: ServiceInterface,
@@ -17,7 +15,7 @@ class EditServiceScreenViewModel(private val authService: ServiceInterface,
     val isSentSuccessfully: MutableState<Boolean?> = mutableStateOf(null)
 
 
-fun editService(body: ServiceRequest){
+fun editService(body: ServiceRequestEditor){
     Log.i("edit id",id.toString())
     isSentSuccessfully.value=null
 authService.editService(id,body){

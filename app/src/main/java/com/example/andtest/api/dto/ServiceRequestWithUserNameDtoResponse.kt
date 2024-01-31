@@ -6,7 +6,7 @@ import java.time.format.DateTimeFormatter
 data class ServiceRequestWithUserNameDtoResponse(
     val id: Long,
     val description: String,
-    val lastStatus: String,
+    val lastStatus: Status,
     val endDate: LocalDateTime,//todo zrobic z tego date
     val startDate: LocalDateTime,
     val price: Long,

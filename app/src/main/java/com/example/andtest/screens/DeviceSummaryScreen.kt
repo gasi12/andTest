@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -47,6 +48,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavController
+import com.example.andtest.components.DeviceCardAlt
 import com.example.andtest.navigation.Screen
 import com.example.andtest.viewModels.DeviceSummaryScreenViewModel
 import kotlinx.coroutines.delay
@@ -116,7 +118,7 @@ fun DeviceSummaryScreen(viewModel: DeviceSummaryScreenViewModel, navController: 
                     LazyColumn(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 10.dp),
+                            .padding(horizontal = 20.dp),
                         horizontalAlignment = Alignment.CenterHorizontally,
                         state = listState
                     ) {
@@ -131,9 +133,10 @@ fun DeviceSummaryScreen(viewModel: DeviceSummaryScreenViewModel, navController: 
                                 var showDialog by remember { mutableStateOf(false) }
                                 Box(
                                     modifier = Modifier
-                                        .height(200.dp)
-                                        .padding(2.dp)
-                                        .fillMaxSize()
+                                        //.height(200.dp)
+                                        .padding(5.dp)
+
+                                        .widthIn(max = 500.dp)
                                         .background(
                                             MaterialTheme.colorScheme.secondaryContainer
                                                 .copy(alpha = 0.3f),
@@ -142,36 +145,12 @@ fun DeviceSummaryScreen(viewModel: DeviceSummaryScreenViewModel, navController: 
                                         .combinedClickable(
                                             onLongClick = { showDialog = true },
                                             onClick = {
-//                                                navController.navigate("${Screen.CUSTOMERDETAILS.name}/${device.phoneNumber}") //todo
+                                                navController.navigate("${Screen.DEVICEDETAILS.name}/${device.deviceSerialNumber}") //todo
                                             }),
                                     contentAlignment = Alignment.Center,
                                     propagateMinConstraints = true
                                 ) {
-                                    Column(modifier= Modifier.padding(10.dp)) {
-                                        Text(
-                                            text = "Device",
-                                            color = MaterialTheme.colorScheme.onSecondaryContainer,
-                                            modifier = Modifier.padding(0.dp),
-                                            fontWeight = FontWeight.Bold,
-                                        )
-                                        Text(
-                                            text = device.deviceType.visibleName.plus(" ").plus(device.deviceName),
-                                            color = MaterialTheme.colorScheme.onSecondaryContainer,
-                                            modifier = Modifier.padding(0.dp)
-                                        )
-                                        Text(
-                                            text = "serial number",
-                                            color = MaterialTheme.colorScheme.onSecondaryContainer,
-                                            modifier = Modifier.padding(0.dp),
-                                            fontWeight = FontWeight.Bold,
-                                        )
-                                        Text(
-                                            text = device.deviceSerialNumber,
-                                            color = MaterialTheme.colorScheme.onSecondaryContainer,
-                                            modifier = Modifier.padding(0.dp)
-                                        )
-
-                                    }
+                                    DeviceCardAlt(device = device)
                                 }
                                 if (showDialog) {
                                     Dialog(onDismissRequest = { showDialog = false }) {

@@ -10,13 +10,17 @@ import com.example.andtest.api.dto.CustomerAndDevicesAndServiceRequestsDto
 import com.example.andtest.api.dto.CustomerAndDevicesAndServiceResponseDto
 import com.example.andtest.api.dto.CustomerWithDevicesListDtoResponse
 import com.example.andtest.api.dto.Device
+import com.example.andtest.api.dto.DeviceWithServiceRequestList
+import com.example.andtest.api.dto.InviteRequest
 import com.example.andtest.api.dto.LoginRequest
 import com.example.andtest.api.dto.RefreshTokenRequest
 import com.example.andtest.api.dto.LoginResponse
-import com.example.andtest.api.dto.ServiceRequest
+import com.example.andtest.api.dto.RegisterRequest
+import com.example.andtest.api.dto.ServiceRequestEditor
 import com.example.andtest.api.dto.ServiceRequestWithDetailsDto
 import com.example.andtest.api.dto.ServiceRequestWithUserNameDtoResponse
 import com.example.andtest.api.dto.StatusHistoryDtoRequest
+import com.example.andtest.api.dto.UserDto
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -55,6 +59,7 @@ class AuthService private constructor(context: Context):ServiceInterface {
                         myStorage.saveAnything("username", tokens.username)
                         myStorage.saveAnything("firstName", tokens.firstName)
                         myStorage.saveAnything("lastName", tokens.lastName)
+                        myStorage.saveAnything("role", tokens.role)
                     }
                     callback(tokens, true)
                 } else {
@@ -78,6 +83,43 @@ class AuthService private constructor(context: Context):ServiceInterface {
         })
     }
 
+    override fun register(body: RegisterRequest, callback: (LoginResponse?, Boolean) -> Unit) {
+        authApi.register(body).enqueue(object : Callback<LoginResponse> {
+            override fun onResponse(call: Call<LoginResponse>, response: Response<LoginResponse>) {
+                if( response.code()==404){
+                    callback(null, true)
+                }
+                if (response.isSuccessful) {
+                    val tokens = response.body()
+                    if (tokens != null) {
+                        myStorage.saveToken(tokens.token, SecurePreferences.TokenType.AUTH)
+                        myStorage.saveToken(tokens.refreshToken, SecurePreferences.TokenType.REFRESH)
+                        myStorage.saveAnything("username", tokens.username)
+                        myStorage.saveAnything("firstName", tokens.firstName)
+                        myStorage.saveAnything("lastName", tokens.lastName)
+                        myStorage.saveAnything("role", tokens.role)
+                    }
+                    callback(tokens, true)
+                } else {
+                    Log.i("register tokens fail", response.body().toString())
+                    Log.i(
+                        "register tokens fail",
+                        "${myStorage.getToken(SecurePreferences.TokenType.AUTH)}"
+                    )
+                    myStorage.clearTokens()
+                    callback(null, false)
+
+                }
+            }
+
+            override fun onFailure(call: Call<LoginResponse>, t: Throwable) {
+                myStorage.clearTokens()
+                Log.i("register request failed", "${t.message}")
+                callback(null, false)
+            }
+        })
+    }
+
     override fun refreshToken(
         body: RefreshTokenRequest,
         callback: (LoginResponse?, Boolean) -> Unit
@@ -92,6 +134,8 @@ class AuthService private constructor(context: Context):ServiceInterface {
                     tokens?.let { myStorage.saveAnything("username", it.username) }
                     tokens?.let { myStorage.saveAnything("firstName", it.firstName) }
                     tokens?.let { myStorage.saveAnything("lastName", it.lastName) }
+                    tokens?.let { myStorage.saveAnything("role", it.role) }
+
                     Log.i("tokeny authservice.refreshtoken", tokens.toString())
                     tokens?.token?.let {
                         myStorage.saveToken(
@@ -265,7 +309,26 @@ Log.i("getservicedetails","id: $id")
             })
     }
 
+    override fun deleteUserById(id: Long, callback: (Boolean) -> Unit) {
+        Log.i("sent id", id.toString())
+        authApi.deleteUserById(id)
+            .enqueue(object : Callback<Void> {
+                override fun onResponse(call: Call<Void>, response: Response<Void>) {
+                    Log.i("RESPONSE", response.body().toString())
+                    Log.i("code", response.code().toString())
+                    if(response.isSuccessful){
+                        callback(true)
+                    } else {
+                        callback(false)
+                    }
+                }
 
+                override fun onFailure(call: Call<Void>, t: Throwable) {
+                    Log.i("onFail->deleteUserById","failed with reason ${t.message}")
+                    callback(false)
+                }
+            })
+    }
     override fun addStatusToService(
         serviceId: Long,
         body: StatusHistoryDtoRequest,
@@ -360,13 +423,13 @@ Log.i("getservicedetails","id: $id")
             })
     }
 
-    override fun editService(id: Long, body: ServiceRequest, callback: (Boolean) -> Unit) {
+    override fun editService(id: Long, body: ServiceRequestEditor, callback: (Boolean) -> Unit) {
         authApi.editService(id,body)
-            .enqueue(object :Callback<ServiceRequest>
+            .enqueue(object :Callback<ServiceRequestEditor>
             {
                 override fun onResponse(
-                    call: Call<ServiceRequest>,
-                    response: Response<ServiceRequest>
+                    call: Call<ServiceRequestEditor>,
+                    response: Response<ServiceRequestEditor>
                 ) {
                     if(response.isSuccessful&&response.body()!=null){
                         response.body()?.let { body ->
@@ -378,7 +441,7 @@ Log.i("getservicedetails","id: $id")
                     }
                 }
 
-                override fun onFailure(call: Call<ServiceRequest>, t: Throwable) {
+                override fun onFailure(call: Call<ServiceRequestEditor>, t: Throwable) {
                     Log.i("onFail->addStatusToService","failed with reason ${t.message}")
                     callback(false)
                 }
@@ -408,5 +471,107 @@ Log.i("getservicedetails","id: $id")
             }
         })
     }
+    override fun getDeviceWithServiceRequests(serialNumber: String, callback: (DeviceWithServiceRequestList) -> Unit) {
 
+
+        authApi.getDeviceWithServiceRequestsBySerialNumber(serialNumber)
+            .enqueue(object : Callback<DeviceWithServiceRequestList> {
+                override fun onResponse(
+                    call: Call<DeviceWithServiceRequestList>,
+                    response: Response<DeviceWithServiceRequestList>
+                ) {
+                    Log.i("getservicedetails","we did it into onresponse")
+                    if (response.isSuccessful) {
+                        Log.i("getservicedetails","response success and ${response.body().toString()}")
+                        response.body()?.let { body ->
+                            callback(body)
+                        }
+
+                    }
+                    Log.i("getservicedetails","but we didnt catch response")
+                    Log.i("getservicedetails","zwrotka : ${response.body().toString()}")
+                }
+
+                override fun onFailure(
+                    call: Call<DeviceWithServiceRequestList>,
+                    t: Throwable
+                ) {
+                    Log.i("onFail->getServiceDetails","failed with reason ${t.message}")
+                }
+            })
+    }
+    override fun getUserList(page: Int?,pageSize: Int?, callback: (List<UserDto>) -> Unit) {
+        val userList: MutableList<UserDto> = mutableListOf()
+        authApi.getUserList(page,pageSize).enqueue(object : Callback<List<UserDto>>{
+
+
+            override fun onResponse(
+                call: Call<List<UserDto>>,
+                response: Response<List<UserDto>>
+            ) {
+                Log.i("UserDto response ",response.body().toString())
+                if (response.isSuccessful) {
+
+                    response.body()?.let { body ->
+                        userList.addAll(body)
+                    }
+
+                    callback(userList)
+                }
+            }
+            override fun onFailure(call: Call<List<UserDto>>, t: Throwable) {
+                Log.i("onFail->getCustomerList","failed with reason ${t.message}")
+            }
+        })
+    }
+
+    override fun inviteUser(body: InviteRequest, callback: (Boolean) -> Unit) {
+        Log.i("request", body.toString())
+        authApi.inviteUser(body).enqueue(object : Callback<Void> {
+            override fun onResponse(call: Call<Void>, response: Response<Void>) {
+                Log.i("REsponse", response.body().toString())
+                if(response.isSuccessful){
+                    callback(true)
+                } else {
+                    callback(false)
+                }
+            }
+
+            override fun onFailure(call: Call<Void>, t: Throwable) {
+                Log.i("onFail->getCustomerList","failed with reason ${t.message}")
+            }
+        })
+    }
+
+    override fun promoteToUser(id: Long, callback: (Boolean) -> Unit) {
+        authApi.promoteToUser(id)
+            .enqueue(object : Callback<Void> {
+                override fun onFailure(call: Call<Void>, t: Throwable) {
+                    Log.i("promote to user exception", t.toString())
+                }
+
+                override fun onResponse(call: Call<Void>, response: Response<Void>) {
+                    if (response.isSuccessful) {
+                        callback(true)
+                    } else {
+                        callback(false)
+                    }
+                }
+            })}
+
+    override fun promoteToAdmin(id: Long, callback: (Boolean) -> Unit) {
+        authApi.promoteToAdmin(id)
+            .enqueue(object : Callback<Void> {
+                override fun onFailure(call: Call<Void>, t: Throwable) {
+                    Log.i("promote to user exception", t.toString())
+                }
+
+                override fun onResponse(call: Call<Void>, response: Response<Void>) {
+                    if (response.isSuccessful) {
+                        callback(true)
+                    } else {
+                        callback(false)
+                    }
+                }
+            })}
 }

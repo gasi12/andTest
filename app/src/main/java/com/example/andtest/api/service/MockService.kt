@@ -8,30 +8,63 @@ import com.example.andtest.api.dto.Device
 import com.example.andtest.api.dto.LoginRequest
 import com.example.andtest.api.dto.RefreshTokenRequest
 import com.example.andtest.api.dto.LoginResponse
-import com.example.andtest.api.dto.ServiceRequest
+import com.example.andtest.api.dto.ServiceRequestEditor
 import com.example.andtest.api.dto.ServiceRequestWithDetailsDto
 import com.example.andtest.api.dto.ServiceRequestWithUserNameDtoResponse
 import com.example.andtest.api.dto.StatusHistory
 import com.example.andtest.api.dto.StatusHistoryDtoRequest
 import com.example.andtest.api.dto.DeviceType
+import com.example.andtest.api.dto.DeviceWithServiceRequestList
+import com.example.andtest.api.dto.InviteRequest
+import com.example.andtest.api.dto.RegisterRequest
 import com.example.andtest.api.dto.Status
+import com.example.andtest.api.dto.UserDto
 import java.time.LocalDateTime
-import java.util.Date
 
 class MockService :ServiceInterface{
+    override fun promoteToUser(id: Long, callback: (Boolean) -> Unit) {
+        TODO("Not yet implemented")
+    }
+
+    override fun promoteToAdmin(id: Long, callback: (Boolean) -> Unit) {
+        TODO("Not yet implemented")
+    }
+
+    override fun register(body: RegisterRequest, callback: (LoginResponse?, Boolean) -> Unit) {
+        TODO("Not yet implemented")
+    }
+
+    override fun deleteUserById(id: Long, callback: (Boolean) -> Unit) {
+        TODO("Not yet implemented")
+    }
+
+    override fun inviteUser(body: InviteRequest, callback: (Boolean) -> Unit) {
+        TODO("Not yet implemented")
+    }
+
+    override fun getUserList(page: Int?, pageSize: Int?, callback: (List<UserDto>) -> Unit) {
+        TODO("Not yet implemented")
+    }
+    override fun getDeviceWithServiceRequests(
+        serialNumber: String,
+        callback: (DeviceWithServiceRequestList) -> Unit
+    ) {
+        TODO("Not yet implemented")
+    }
+
     override fun getDeviceList(page: Int?, pageSize: Int?, callback: (List<Device>) -> Unit) {
         TODO("Not yet implemented")
     }
 
     override fun loginCall(body: LoginRequest, callback: (LoginResponse?, Boolean) -> Unit) {
         // Simulate a successful response
-        val loginResponse = LoginResponse("mockAuthToken", "mockRefreshToken","mockusername","mockfirstname","mocklastname")
+        val loginResponse = LoginResponse("mockAuthToken", "mockRefreshToken","mockusername","mockfirstname","mocklastname","ADMIN")
         callback(loginResponse, true)
     }
 
  override fun refreshToken(body: RefreshTokenRequest, callback: (LoginResponse?, Boolean) -> Unit) {
         // Simulate a successful token refresh
-            val loginResponse = LoginResponse("mockAuthToken", "mockRefreshToken","mockusername","mockfirstname","mocklastname")
+            val loginResponse = LoginResponse("mockAuthToken", "mockRefreshToken","mockusername","mockfirstname","mocklastname","ADMIN")
         callback(loginResponse, true)
 
     }
@@ -50,11 +83,11 @@ class MockService :ServiceInterface{
         callback: (List<ServiceRequestWithUserNameDtoResponse>) -> Unit
     ) {
         val serviceRequests = mutableListOf<ServiceRequestWithUserNameDtoResponse>()
-        val avilableStatus = listOf("PENDING","ON_HOLD","FINISHED","IN_PROCESS")
+
         for (i in 1..10) {
             val serviceRequest = ServiceRequestWithUserNameDtoResponse(
                 id = i.toLong(),
-                lastStatus = avilableStatus.random(),
+                lastStatus = Status.IN_PROCESS,
                 description = "Service description $i",
                 endDate = LocalDateTime.now().plusDays(5),
                 startDate = LocalDateTime.now(),
@@ -114,7 +147,7 @@ class MockService :ServiceInterface{
         TODO("Not yet implemented")
     }
 
-    override fun editService(id: Long, body: ServiceRequest, callback: (Boolean) -> Unit) {
+    override fun editService(id: Long, body: ServiceRequestEditor, callback: (Boolean) -> Unit) {
         TODO("Not yet implemented")
     }
 

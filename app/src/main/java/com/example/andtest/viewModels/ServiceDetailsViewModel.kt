@@ -4,12 +4,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.example.andtest.api.dto.ServiceRequest
+import com.example.andtest.api.dto.ServiceRequestEditor
 import com.example.andtest.api.dto.ServiceRequestWithDetailsDto
-import com.example.andtest.api.dto.ServiceRequestWithId
 import com.example.andtest.api.service.ServiceInterface
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.delay
 
 open class ServiceDetailsViewModel(
     private val authService: ServiceInterface,
@@ -18,8 +15,8 @@ open class ServiceDetailsViewModel(
 ): ViewModel() {
 
     fun shareServiceRequest(price:Long,description:String){
-        val serviceRequest = ServiceRequest(description,price)
-        sharedViewModel.sharedServiceRequest.value= serviceRequest
+        val serviceRequestEditor = ServiceRequestEditor(description,price)
+        sharedViewModel.sharedServiceRequestEditor.value= serviceRequestEditor
         sharedViewModel.sharedServiceRequestId.value =id
     }
     open val serviceRequest: MutableLiveData<ServiceRequestWithDetailsDto> = MutableLiveData()
@@ -29,7 +26,6 @@ open class ServiceDetailsViewModel(
     init
     {
         getServiceDetails()
-
     }
 
     fun getServiceDetails() {

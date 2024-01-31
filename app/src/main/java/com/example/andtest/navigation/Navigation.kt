@@ -23,8 +23,11 @@ import com.example.andtest.api.dto.RefreshTokenRequest
 import com.example.andtest.api.service.ServiceInterface
 import com.example.andtest.screens.AddServiceScreen
 import com.example.andtest.screens.AddStatusScreen
+import com.example.andtest.screens.AdminScreen
 import com.example.andtest.screens.CustomerDetailsScreen
+import com.example.andtest.screens.DeviceDetailsScreen
 import com.example.andtest.screens.EditService
+import com.example.andtest.screens.InviteUser
 import com.example.andtest.screens.ServicesSummaryScreen
 import com.example.andtest.screens.ServiceDetailsScreen
 
@@ -36,10 +39,16 @@ import com.example.andtest.viewModels.AddServiceScreenViewModel
 import com.example.andtest.viewModels.AddServiceScreenViewModelFactory
 import com.example.andtest.viewModels.AddStatusScreenViewModel
 import com.example.andtest.viewModels.AddStatusScreenViewModelFactory
+import com.example.andtest.viewModels.AdminScreenViewModel
+import com.example.andtest.viewModels.AdminScreenViewModelFactory
 import com.example.andtest.viewModels.CustomerDetailsFactory
 import com.example.andtest.viewModels.CustomerDetailsViewModel
+import com.example.andtest.viewModels.DeviceDetailsFactory
+import com.example.andtest.viewModels.DeviceDetailsViewModel
 import com.example.andtest.viewModels.EditServiceScreenViewModel
 import com.example.andtest.viewModels.EditServiceScreenViewModelFactory
+import com.example.andtest.viewModels.InviteUserViewModel
+import com.example.andtest.viewModels.InviteUserViewModelFactory
 import com.example.andtest.viewModels.ServicesSummaryScreenFactory
 import com.example.andtest.viewModels.ServicesSummaryScreenViewModel
 import com.example.andtest.viewModels.LoginScreenViewModel
@@ -48,6 +57,8 @@ import com.example.andtest.viewModels.ServiceDetailsFactory
 import com.example.andtest.viewModels.ServiceDetailsViewModel
 import com.example.andtest.viewModels.SharedViewModel
 import com.example.andtest.viewModels.SharedViewModelFactory
+import com.example.andtest.viewModels.SignupScreenViewModel
+import com.example.andtest.viewModels.SignupScreenViewModelFactory
 
 
 @Composable
@@ -108,7 +119,9 @@ import com.example.andtest.viewModels.SharedViewModelFactory
             }
             composable(route = Screen.REGISTER.name) {
                 Log.i("navigation route", "$startDestination")
-                SignupScreen(navController = navController)
+                val viewModel: SignupScreenViewModel =
+                    viewModel(factory = SignupScreenViewModelFactory(authService))
+                SignupScreen(navController = navController,viewModel = viewModel)
             }
             composable(route = Screen.LOGIN.name) {
                 Log.i("navigation route", "$startDestination")
@@ -158,9 +171,17 @@ import com.example.andtest.viewModels.SharedViewModelFactory
                     EditService(navController, viewModel)
                 }
             }
-            composable(route = Screen.QRScanner.name){
-                Log.i("navigation route", "$route")
-                QRScanner(context = LocalContext.current)
+            composable(route = Screen.ADMINSCREEN.name){
+                Log.i("navigation route", "$startDestination")
+                val viewModel: AdminScreenViewModel =
+                    viewModel(factory = AdminScreenViewModelFactory(sharedViewModel,authService))
+                AdminScreen(viewModel,navController)
+            }
+            composable(route = Screen.INVITEUSER.name){
+                Log.i("navigation route", "$startDestination")
+                val viewModel: InviteUserViewModel =
+                    viewModel(factory = InviteUserViewModelFactory(authService))
+                InviteUser(navController,viewModel)
             }
             composable(route = "${Screen.CUSTOMERDETAILS.name}/{id}") { backStackEntry ->
                 val id = backStackEntry.arguments?.getString("id")?.toLong()
@@ -168,6 +189,14 @@ import com.example.andtest.viewModels.SharedViewModelFactory
                     val viewModel: CustomerDetailsViewModel =
                         viewModel(factory = CustomerDetailsFactory(authService, id, sharedViewModel))
                     CustomerDetailsScreen(viewModel, navController)
+                }
+            }
+            composable(route = "${Screen.DEVICEDETAILS.name}/{id}") { backStackEntry ->
+                val id = backStackEntry.arguments?.getString("id")//? //.toLong()
+                if (id != null) {
+                    val viewModel: DeviceDetailsViewModel =
+                        viewModel(factory = DeviceDetailsFactory(authService, id, sharedViewModel))
+                    DeviceDetailsScreen(viewModel, navController)
                 }
             }
         }

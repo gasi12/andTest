@@ -7,8 +7,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.andtest.api.dto.Customer
 import com.example.andtest.api.dto.Device
-import com.example.andtest.api.dto.ServiceRequest
+import com.example.andtest.api.dto.ServiceRequestEditor
 import com.example.andtest.api.dto.ServiceRequestWithUserNameDtoResponse
+import com.example.andtest.api.dto.UserDto
 import com.example.andtest.api.service.ServiceInterface
 import com.example.andtest.navigation.Screen
 
@@ -17,7 +18,7 @@ class SharedViewModel(private val authService: ServiceInterface) : ViewModel() {
     val selectedItem = mutableStateOf(Screen.SERVICESUMMARY.name)
 
     val sharedServiceRequestId: MutableLiveData<Long> = MutableLiveData()
-    val sharedServiceRequest: MutableLiveData<ServiceRequest> = MutableLiveData()
+    val sharedServiceRequestEditor: MutableLiveData<ServiceRequestEditor> = MutableLiveData()
 
     val serviceRequests: MutableLiveData<List<ServiceRequestWithUserNameDtoResponse>> = MutableLiveData(emptyList())
     val isLastPageEmptyServices : MutableState<Boolean?> = mutableStateOf(false)
@@ -31,9 +32,11 @@ class SharedViewModel(private val authService: ServiceInterface) : ViewModel() {
     val isLastPageEmptyDevices : MutableState<Boolean?> = mutableStateOf(false)
     private var currentPageDevice = 0
 
+    val users: MutableLiveData<List<UserDto>> = MutableLiveData(emptyList())
+    val isLastPageEmptyUsers : MutableState<Boolean?> = mutableStateOf(false)
+    private var currentPageUsers = 0
 
-
-    fun getAllServices(pageSize: Int = 10) {
+    fun getAllServices(pageSize: Int = 40) {
         if(isLastPageEmptyServices.value == true)return
         else{
             authService.getAllServiceRequestsWithUserName(currentPageServices, pageSize) { serviceRequestsList ->
@@ -48,7 +51,7 @@ class SharedViewModel(private val authService: ServiceInterface) : ViewModel() {
             }
         }
     }
-    fun getAllCustomers(pageSize: Int = 10) {
+    fun getAllCustomers(pageSize: Int = 40) {
         if(isLastPageEmptyCustomers.value == true)return
         else{
 
@@ -63,7 +66,8 @@ class SharedViewModel(private val authService: ServiceInterface) : ViewModel() {
 
             }
         }
-    }   fun getAllDevices(pageSize: Int = 10) {
+    }
+    fun getAllDevices(pageSize: Int = 40) {
         if(isLastPageEmptyDevices.value == true)return
         else{
 
@@ -79,11 +83,34 @@ class SharedViewModel(private val authService: ServiceInterface) : ViewModel() {
             }
         }
     }
-    fun deleteById(serviceId: Long){
+    fun getAllUsers(pageSize: Int = 40) {
+        if(isLastPageEmptyUsers.value == true)return
+        else{
+
+            authService.getUserList(currentPageUsers, pageSize) { userList ->
+                if(userList.isEmpty()){
+                    isLastPageEmptyUsers.value=true
+                }
+                else{
+                    users.value =   users.value?.plus(userList)
+                    currentPageUsers++
+                }
+
+            }
+        }
+    }
+    fun deleteServiceRequestById(serviceId: Long){
         authService.deleteServiceById(serviceId)
         {isSuccessful ->
             if(isSuccessful)
                 serviceRequests.value = serviceRequests.value?.filterNot { it.id == serviceId }
+        }
+    }
+    fun deleteUserById(id: Long){
+        authService.deleteUserById(id)
+        {isSuccessful ->
+            if(isSuccessful)
+                users.value = users.value?.filterNot { it.id == id }
         }
     }
 
@@ -105,6 +132,12 @@ class SharedViewModel(private val authService: ServiceInterface) : ViewModel() {
         isLastPageEmptyDevices.value=false
         devices.value = emptyList()
         getAllDevices()
+    }
+    fun refreshUsers() {
+        currentPageUsers = 0
+        isLastPageEmptyUsers.value=false
+        users.value = emptyList()
+        getAllUsers()
     }
 }
 class SharedViewModelFactory(private val authService: ServiceInterface) :

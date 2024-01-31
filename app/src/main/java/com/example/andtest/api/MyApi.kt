@@ -5,13 +5,17 @@ import com.example.andtest.api.dto.CustomerAndDevicesAndServiceRequestsDto
 import com.example.andtest.api.dto.CustomerAndDevicesAndServiceResponseDto
 import com.example.andtest.api.dto.CustomerWithDevicesListDtoResponse
 import com.example.andtest.api.dto.Device
+import com.example.andtest.api.dto.DeviceWithServiceRequestList
+import com.example.andtest.api.dto.InviteRequest
 import com.example.andtest.api.dto.LoginRequest
 import com.example.andtest.api.dto.RefreshTokenRequest
 import com.example.andtest.api.dto.LoginResponse
-import com.example.andtest.api.dto.ServiceRequest
+import com.example.andtest.api.dto.RegisterRequest
+import com.example.andtest.api.dto.ServiceRequestEditor
 import com.example.andtest.api.dto.ServiceRequestWithDetailsDto
 import com.example.andtest.api.dto.ServiceRequestWithUserNameDtoResponse
 import com.example.andtest.api.dto.StatusHistoryDtoRequest
+import com.example.andtest.api.dto.UserDto
 import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -68,10 +72,10 @@ interface MyApi {
     @PUT("/services/service/{id}")
     fun editService(
         @Path("id") id : Long,
-        @Body body: ServiceRequest
-    ): Call<ServiceRequest>
+        @Body body: ServiceRequestEditor
+    ): Call<ServiceRequestEditor>
 
-    @GET("/customer/getall") //services summary
+    @GET("/customer/getall/pageable") //services summary
     fun getAllCustomers(
         @Query("page") page: Int? = 0,
         @Query("pageSize")pageSize: Int? = 10
@@ -83,6 +87,37 @@ interface MyApi {
         @Query("pageSize")pageSize: Int? = 10
     ): Call<List<Device>>
 
+    @GET("/device/serialNumber/{serialNumber}")
+    fun getDeviceWithServiceRequestsBySerialNumber(
+        @Path("serialNumber") serialNumber: String
+    ): Call<DeviceWithServiceRequestList>
+
+    @GET("/admin/users") //services summary
+    fun getUserList(
+        @Query("page") page: Int? = 0,
+        @Query("pageSize")pageSize: Int? = 10
+    ): Call<List<UserDto>>
+
+    @POST("/admin/invite")
+    fun inviteUser(@Body body: InviteRequest): Call<Void>
+
+    @DELETE("/admin/user/{id}")
+    fun deleteUserById(
+        @Path("id") id : Long
+    ): Call<Void>
+
+    @POST("/auth/register/user")
+    fun register(@Body body: RegisterRequest): Call<LoginResponse>
+
+    @POST("/admin/user/{id}/admin")
+    fun promoteToAdmin(
+        @Path("id") id : Long
+    ): Call<Void>
+
+    @POST("/admin/user/{id}/user")
+    fun promoteToUser(
+        @Path("id") id : Long
+    ): Call<Void>
 }
 
 

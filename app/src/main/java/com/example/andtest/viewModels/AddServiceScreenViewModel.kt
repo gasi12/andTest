@@ -37,12 +37,14 @@ fun getUserWithDevicesByPhoneNumber(phoneNumber: Long){
     }
 }
     fun addCustomerWithDeviceAndService(body: CustomerAndDevicesAndServiceRequestsDto){
-
+        Log.i("Zjebalem ostro", body.toString())
         authService.addCustomerWithDeviceAndService(body){
             data,isSuccess->
               createdServiceId.value=data?.serviceRequest?.id
             isSentSuccessfully.value = isSuccess
             sharedViewModel.refreshServices()
+            sharedViewModel.refreshDevices()
+            sharedViewModel.refreshCustomers()
         }
     }
 fun clearIsDataPresent(){
