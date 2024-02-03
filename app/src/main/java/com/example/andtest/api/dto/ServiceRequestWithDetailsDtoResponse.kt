@@ -21,9 +21,9 @@ data class Device(
 
 data class StatusHistory(
     val id: Long,
-    val status: String,
+    val status: Status,
     val comment: String,
-    val time: String
+    val time: LocalDateTime
 )
 
 data class Customer(
@@ -49,7 +49,7 @@ data class ServiceRequest(
     val id: Long,
     val description: String,
     val lastStatus: Status,
-    val endDate: LocalDateTime,
+    val endDate: LocalDateTime?,
     val startDate: LocalDateTime,
     val price: Long
 )

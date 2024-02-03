@@ -75,6 +75,7 @@ import com.example.andtest.api.dto.CustomerWithDevicesListDtoResponse
 import com.example.andtest.api.dto.Device
 import com.example.andtest.api.dto.ServiceRequest
 import com.example.andtest.api.dto.ServiceRequestWithUserNameDtoResponse
+import com.example.andtest.api.dto.StatusHistory
 import com.example.andtest.api.dto.UserDto
 import com.example.andtest.screens.RowWithValue
 import com.example.andtest.screens.formatDateToReadableLocaleToString
@@ -355,12 +356,12 @@ fun PasswordField(labelValue:String,data:MutableState<String>,error: Boolean=fal
 }
 
 @Composable
-fun ButtonComponent(labelValue: String, onClick: ()-> Unit){
+fun ButtonComponent(labelValue: String, onClick: ()-> Unit,modifier: Modifier= Modifier){
     Button(
         onClick = onClick ,
-        modifier = Modifier
+        modifier = modifier.then(Modifier
             .fillMaxWidth()
-            .heightIn(45.dp),
+            .heightIn(45.dp)),
     contentPadding= PaddingValues(),
         colors = ButtonColors(
             containerColor = MaterialTheme.colorScheme.primaryContainer,
@@ -459,7 +460,7 @@ fun DeviceItem(
 ) {
     Box(
         modifier = Modifier
-            .padding(6.dp)
+//            .padding(6.dp)
             .fillMaxWidth()
             .background(
                 MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.3f),
@@ -634,6 +635,7 @@ fun CustomerInfoIcons(firstName: String?, lastName: String?, phoneNumber: String
         }
     }
 }
+
 @Composable
 fun CustomerDevicesIcons(
     customerWithDevices: CustomerWithDevicesListDtoResponse?,
@@ -717,6 +719,7 @@ fun UserCard(user: UserDto){
 @Composable
 fun ServiceRequestIcons(
     serviceRequest: ServiceRequest?,
+
     onServiceClick: () -> Unit = {},
     primaryColor: Boolean
 ) {
@@ -741,7 +744,7 @@ fun ServiceRequestIcons(
             Row(Modifier.padding(vertical = 3.dp)) {
                 // Placeholder for description icon
                 Icon(
-                    painterResource(id = R.drawable.person), // Replace with actual icon resource
+                    painterResource(id = R.drawable.description), // Replace with actual icon resource
                     contentDescription = "Description",
                     modifier = Modifier.padding(end = 10.dp),
                     tint = if (primaryColor) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSecondaryContainer,
@@ -751,7 +754,7 @@ fun ServiceRequestIcons(
                     color = if (primaryColor) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSecondaryContainer,
                     modifier = Modifier.padding(0.dp),
                     overflow =  TextOverflow.Ellipsis,
-                    maxLines = 3
+//                    maxLines = 3
 
                 )
             }
@@ -759,7 +762,7 @@ fun ServiceRequestIcons(
             Row(Modifier.padding(vertical = 3.dp)){
                 // Placeholder for last status icon
                 Icon(
-                    painterResource(id = R.drawable.person), // Replace with actual icon resource
+                    painterResource(id = R.drawable.info), // Replace with actual icon resource
                     contentDescription = "Last Status",
                     modifier = Modifier.padding(end = 10.dp),
                     tint =if (primaryColor) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSecondaryContainer,
@@ -773,7 +776,7 @@ fun ServiceRequestIcons(
             Row(Modifier.padding(vertical = 3.dp)){
                 // Placeholder for end date icon
                 Icon(
-                    painterResource(id = R.drawable.person), // Replace with actual icon resource
+                    painterResource(id = R.drawable.end_date), // Replace with actual icon resource
                     contentDescription = "End Date",
                     modifier = Modifier.padding(end = 10.dp),
                     tint = if (primaryColor) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSecondaryContainer,
@@ -787,7 +790,7 @@ fun ServiceRequestIcons(
             Row(Modifier.padding(vertical = 3.dp)){
                 // Placeholder for start date icon
                 Icon(
-                    painterResource(id = R.drawable.person), // Replace with actual icon resource
+                    painterResource(id = R.drawable.start_date), // Replace with actual icon resource
                     contentDescription = "Start Date",
                     modifier = Modifier.padding(end = 10.dp),
                     tint = if (primaryColor) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSecondaryContainer,
@@ -801,13 +804,87 @@ fun ServiceRequestIcons(
             Row(Modifier.padding(vertical = 3.dp)){
                 // Placeholder for price icon
                 Icon(
-                    painterResource(id = R.drawable.person), // Replace with actual icon resource
+                    painterResource(id = R.drawable.price), // Replace with actual icon resource
                     contentDescription = "Price",
                     modifier = Modifier.padding(end = 10.dp),
                     tint = if (primaryColor) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSecondaryContainer,
                 )
 
                 Text(text = if(serviceRequest?.price==0L)"No price" else serviceRequest?.price.toString(),
+                    color = if (primaryColor) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSecondaryContainer,
+                    modifier = Modifier.padding(0.dp))
+            }
+        }
+    }
+}
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun StatusHistoryIcons(
+    statusHistory: StatusHistory?,
+
+    onServiceClick: () -> Unit = {},
+    primaryColor: Boolean
+) {
+    Box(
+        modifier = Modifier
+            .padding(2.dp)
+            .fillMaxWidth()
+            .background(
+                if (primaryColor) MaterialTheme.colorScheme.tertiaryContainer
+                else MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.3f),
+                RoundedCornerShape(15.dp)
+            )
+            .combinedClickable(
+                onLongClick = { },
+                onClick = onServiceClick
+            ),
+        contentAlignment = Alignment.Center,
+        propagateMinConstraints = true
+    ) {
+        Column(modifier = Modifier.padding(10.dp)) {
+            SecondaryText(text = "Status", modifier = Modifier.padding(horizontal = 35.dp))
+            Row(Modifier.padding(vertical = 3.dp)) {
+                // Placeholder for description icon
+                Icon(
+                    painterResource(id = R.drawable.description), // Replace with actual icon resource
+                    contentDescription = "Status",
+                    modifier = Modifier.padding(end = 10.dp),
+                    tint = if (primaryColor) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSecondaryContainer,
+                )
+
+                Text(text = statusHistory?.status?.visibleName?:"???",
+                    color = if (primaryColor) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSecondaryContainer,
+                    modifier = Modifier.padding(0.dp),
+                    overflow =  TextOverflow.Ellipsis,
+                    maxLines = 3
+
+                )
+            }
+            SecondaryText(text = "Comment", modifier = Modifier.padding(horizontal = 35.dp))
+            Row(Modifier.padding(vertical = 3.dp)){
+                // Placeholder for last status icon
+                Icon(
+                    painterResource(id = R.drawable.info), // Replace with actual icon resource
+                    contentDescription = "Comment",
+                    modifier = Modifier.padding(end = 10.dp),
+                    tint =if (primaryColor) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSecondaryContainer,
+                )
+
+                Text(text = statusHistory?.comment?:"",
+                    color = if (primaryColor) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSecondaryContainer,
+                    modifier = Modifier.padding(0.dp))
+            }
+            SecondaryText(text = "End date", modifier = Modifier.padding(horizontal = 35.dp))
+            Row(Modifier.padding(vertical = 3.dp)){
+                // Placeholder for end date icon
+                Icon(
+                    painterResource(id = R.drawable.end_date), // Replace with actual icon resource
+                    contentDescription = "End Date",
+                    modifier = Modifier.padding(end = 10.dp),
+                    tint = if (primaryColor) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSecondaryContainer,
+                )
+
+                Text(text = formatDateToReadableLocaleToString(statusHistory?.time),
                     color = if (primaryColor) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSecondaryContainer,
                     modifier = Modifier.padding(0.dp))
             }

@@ -19,7 +19,7 @@ open class ServiceDetailsViewModel(
         sharedViewModel.sharedServiceRequestEditor.value= serviceRequestEditor
         sharedViewModel.sharedServiceRequestId.value =id
     }
-    open val serviceRequest: MutableLiveData<ServiceRequestWithDetailsDto> = MutableLiveData()
+     open val serviceRequest: MutableLiveData<ServiceRequestWithDetailsDto> = MutableLiveData()
     open val isDeleted = mutableStateOf(false)
     open val isDataLoaded = mutableStateOf(false)
     val isInit = mutableStateOf(false)

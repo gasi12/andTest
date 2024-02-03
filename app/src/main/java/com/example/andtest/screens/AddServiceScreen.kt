@@ -256,6 +256,7 @@ Column {
         }
     }
     )
+    Spacer(modifier = Modifier.height(20.dp))
     ButtonComponent(labelValue = stringResource(id = R.string.addNewDevice), onClick =
     {skipPage.value=false
         navigationSide.value=true
@@ -373,7 +374,7 @@ Column {
                                 })
                             Spacer(modifier = Modifier
                                 .fillMaxWidth()
-                                .height(80.dp))
+                                .height(20.dp))
 
 
                             ButtonComponent(
@@ -421,7 +422,11 @@ Column {
                                 maxLines = 4,
                                 error = descriptionError.value
                             )
-
+                            Spacer(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(30.dp)
+                            )
                             ButtonComponent(
                                 labelValue = stringResource(id = R.string.submit), onClick = {
                                     price.value = price.value.let { if (it == "") "0" else it }

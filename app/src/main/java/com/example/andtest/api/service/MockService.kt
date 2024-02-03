@@ -121,9 +121,9 @@ class MockService :ServiceInterface{
                     " but keep in mind to make a bit more space for special occasion",
             lastStatus = Status.ON_HOLD,
             statusHistoryList = listOf(
-                StatusHistory(1L,"PENDING","Request created","2023-11-11"),
-                StatusHistory(42L,"ON_HOLD","Keep in mind these id's ain't incrementing by 1","2023-11-12"),
-                StatusHistory(42L,"Finished","blah blah blah","2023-11-13"),
+//                StatusHistory(1L,"PENDING","Request created","2023-11-11"),
+//                StatusHistory(42L,"ON_HOLD","Keep in mind these id's ain't incrementing by 1","2023-11-12"),
+//                StatusHistory(42L,"Finished","blah blah blah","2023-11-13"),
             )
         )
         callback(service)

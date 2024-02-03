@@ -29,9 +29,9 @@ class MockViewModel : ServiceDetailsViewModel(sharedViewModel = SharedViewModel(
         statusHistoryList = listOf(
             StatusHistory(
                 id = 3L,
-                status = "Created",
+                status = Status.ON_HOLD,
                 comment = "Service request created",
-                time = "2024-01-04T00:13:47Z"
+                time = LocalDateTime.now()
             )
         ),
         customer = Customer(

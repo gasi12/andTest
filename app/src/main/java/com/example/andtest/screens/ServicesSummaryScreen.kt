@@ -29,6 +29,7 @@ import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -46,6 +47,8 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -54,6 +57,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavController
 import com.example.andtest.api.dto.DeviceType
+import com.example.andtest.api.dto.ServiceRequest
 import com.example.andtest.api.dto.ServiceRequestEditor
 import com.example.andtest.api.dto.ServiceRequestWithUserNameDtoResponse
 import com.example.andtest.api.dto.Status
@@ -174,6 +178,7 @@ fun ServicesSummaryScreen(viewModel: ServicesSummaryScreenViewModel, navControll
                                                 .width(280.dp)
                                                 .height(200.dp)
                                                 .background(MaterialTheme.colorScheme.background)
+
                                         ) {
                                             TextButton(
                                                 onClick = {
@@ -186,6 +191,12 @@ fun ServicesSummaryScreen(viewModel: ServicesSummaryScreenViewModel, navControll
                                             ) {
                                                 Text("Add status")
                                             }
+                                            HorizontalDivider(
+
+                                                modifier = Modifier.fillMaxWidth().padding(horizontal = 15.dp).alpha(0.3f),
+                                                thickness = 1.dp,
+                                                color = Color.Gray
+                                            )
                                             TextButton(
                                                 onClick = {
                                                           viewModel.sharedViewModel.sharedServiceRequestId.value=serviceRequest.id
@@ -200,6 +211,11 @@ fun ServicesSummaryScreen(viewModel: ServicesSummaryScreenViewModel, navControll
                                             ) {
                                                 Text("Edit")
                                             }
+                                            HorizontalDivider(
+                                                modifier = Modifier.fillMaxWidth().padding(horizontal = 15.dp).alpha(0.3f),
+                                                thickness = 1.dp,
+                                                color = Color.Gray
+                                            )
                                             TextButton(
                                                 onClick = {
                                                     viewModel.sharedViewModel.deleteServiceRequestById(serviceRequest.id)
@@ -234,10 +250,10 @@ fun formatDateToShortLocaleToString(date: LocalDateTime):String{
     val locale: Locale = Locale.getDefault()
     return date.dayOfMonth.toString().plus(" ").plus(date.month.getDisplayName(TextStyle.SHORT,locale))
 }
-fun formatDateToReadableLocaleToString(date: LocalDateTime):String{
+fun formatDateToReadableLocaleToString(date: LocalDateTime?):String{
     val locale: Locale = Locale.getDefault()
     val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm", locale)
-    return date.format(formatter)
+    return date?.format(formatter) ?: LocalDateTime.now().toString()
 }
 @Preview
 @Composable

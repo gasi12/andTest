@@ -3,12 +3,17 @@ package com.example.andtest.screens
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -43,6 +48,7 @@ import androidx.navigation.NavController
 import com.example.andtest.api.dto.Customer
 import com.example.andtest.api.dto.Device
 import com.example.andtest.api.dto.DeviceType
+import com.example.andtest.api.dto.ServiceRequest
 import com.example.andtest.api.dto.ServiceRequestWithDetailsDto
 import com.example.andtest.api.dto.Status
 import com.example.andtest.api.dto.StatusHistory
@@ -50,6 +56,9 @@ import com.example.andtest.components.AlertDialogExample
 import com.example.andtest.components.ButtonComponent
 import com.example.andtest.components.CustomerInfoIcons
 import com.example.andtest.components.DeviceItem
+import com.example.andtest.components.DeviceItemIcons
+import com.example.andtest.components.ServiceRequestIcons
+import com.example.andtest.components.StatusHistoryIcons
 import com.example.andtest.components.shimmerEffect
 import com.example.andtest.navigation.Screen
 import com.example.andtest.viewModels.ServiceDetailsViewModel
@@ -93,22 +102,73 @@ fun ServiceDetailsScreen(viewModel: ServiceDetailsViewModel, navController: NavC
                 )
             },
             content ={Box(modifier = Modifier.padding(top = 64.dp)){
-                Box(modifier =Modifier.fillMaxWidth() ){
-                    Column (Modifier.verticalScroll(rememberScrollState())){
-                        Box(){
-                         SummaryList(serviceRequest)
+                Column(modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 20.dp) ){
+
+
+
+
+
+                    LazyColumn {
+                        item {     ServiceRequestIcons(
+                            ServiceRequest(
+                                serviceRequest?.id ?: 0,
+                                serviceRequest?.description ?: "",
+                                serviceRequest?.lastStatus ?: Status.PENDING,
+                                serviceRequest?.endDate,
+                                serviceRequest?.startDate ?: LocalDateTime.now(),
+                                serviceRequest?.price ?: 0
+                            ),
+                            primaryColor = true
+                        ) }
+
+                        item {
+                            DeviceItemIcons(
+                                deviceName = serviceRequest?.device?.deviceName.toString(),
+                                deviceType = serviceRequest?.device?.deviceType?.visibleName.toString(),
+                                deviceSerialNumber = serviceRequest?.device?.deviceSerialNumber.toString(),
+                                {},
+                                false
+                            )
                         }
-                        ButtonComponent(labelValue = "Delete",
-                            onClick = {
-                            showDialog.value = true
-                        })
-                        ButtonComponent(labelValue = "Edit", onClick = {
+                        item {
+                            CustomerInfoIcons(
+                                firstName = serviceRequest?.customer?.firstName.toString(),
+                                lastName = serviceRequest?.customer?.lastName.toString(),
+                                phoneNumber = serviceRequest?.customer?.phoneNumber.toString(),
+                                false
+                            )
+                        }
+                        items(serviceRequest?.statusHistoryList?: listOf()) { statusList ->
+                            StatusHistoryIcons(statusHistory = statusList, primaryColor = false)
 
-                            viewModel.shareServiceRequest(serviceRequest?.price ?: 0, serviceRequest?.description ?: "")
+                        }
+                        item {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                            ) {
+                                ButtonComponent(
+                                    labelValue = "Delete",
+                                    onClick = {
+                                        showDialog.value = true
+                                    }, modifier = Modifier.weight(1f)
+                                )
+                                ButtonComponent(
+                                    labelValue = "Edit",
+                                    onClick = {
+                                        viewModel.shareServiceRequest(serviceRequest?.price ?: 0, serviceRequest?.description ?: "")
+                                        navController.navigate("${Screen.EDITSERVICE.name}/${serviceRequest?.id}")
+                                    }, modifier = Modifier.weight(1f)
+                                )
+                            }
 
-                            navController.navigate("${Screen.EDITSERVICE.name}/${serviceRequest?.id}")
 
-                        })
+                        }
+
+                    }
+
+
                         if(showDialog.value) {
 
                             AlertDialogExample(
@@ -120,7 +180,7 @@ fun ServiceDetailsScreen(viewModel: ServiceDetailsViewModel, navController: NavC
                                 icon = Icons.Default.Warning
                             )
                         }
-                    }
+
                 }
 
             }
@@ -132,87 +192,42 @@ fun ServiceDetailsScreen(viewModel: ServiceDetailsViewModel, navController: NavC
     }
 
 }
-@Preview
+//@Preview
+//@Composable
+//fun RowWithValuePreview(){
+//SummaryList(ServiceRequestWithDetailsDto(
+//        id = 1L,
+//    customer = Customer(1, firstName = "john","wick",123456677),
+//    price = 12345,
+//    startDate = LocalDateTime.now(),
+//    endDate = LocalDateTime.now().plusDays(4),
+//    device = Device(5,"Car","1232456", DeviceType.DESKTOP),
+//    description = "that some long desciption to fill as many space as possible. This normally doesnt get any much longer than this," +
+//            " but keep in mind to make a bit more space for special occasion",
+//    lastStatus = Status.PENDING,
+//    statusHistoryList = listOf(
+//        StatusHistory(1L,"PENDING","Request created","2023-11-11"),
+//        StatusHistory(42L,"ON_HOLD","Keep in mind these id's ain't incrementing by 1","2023-11-12"),
+//        StatusHistory(45L,"Finished","blah blah blah","2023-11-13"),
+//        StatusHistory(47L,"Finished","blah blah blah","2023-11-13"),
+//    )
+//    ))
+//}
 @Composable
-fun RowWithValuePreview(){
+fun SummaryList(
+    serviceRequest: ServiceRequestWithDetailsDto
+) {
 
-}
-@Composable
-fun SummaryList(serviceRequest: ServiceRequestWithDetailsDto? = ServiceRequestWithDetailsDto(
-    id = 1L,
-    customer = Customer(1, firstName = "john","wick",123456677),
-    price = 12345,
-    startDate = LocalDateTime.now(),
-    endDate = LocalDateTime.now().plusDays(4),
-    device = Device(5,"Car","1232456", DeviceType.DESKTOP),
-    description = "that some long desciption to fill as many space as possible. This normally doesnt get any much longer than this," +
-            " but keep in mind to make a bit more space for special occasion",
-    lastStatus = Status.PENDING,
-    statusHistoryList = listOf(
-        StatusHistory(1L,"PENDING","Request created","2023-11-11"),
-        StatusHistory(42L,"ON_HOLD","Keep in mind these id's ain't incrementing by 1","2023-11-12"),
-        StatusHistory(45L,"Finished","blah blah blah","2023-11-13"),
-        StatusHistory(47L,"Finished","blah blah blah","2023-11-13"),
-    )
-)
-){
 
-    Column(modifier = Modifier
-
-        .fillMaxWidth()) {
-        Column(modifier = Modifier
-            .background(Color.DarkGray)
+    Column(
+        modifier = Modifier
             .fillMaxWidth()
-            .padding(10.dp)) {
-            RowWithValue(row = serviceRequest?.description.toString(), description ="Description")
-            RowWithValue(row = serviceRequest?.price.toString(), description ="Price" )
-            if(serviceRequest?.customer?.firstName=="Bogdan"&&serviceRequest.customer.lastName=="Boner"){
-                Text(text = "Bez faktury oczywiście")
-            }
+            .padding(horizontal = 20.dp)
+    ) {
 
-            RowWithValue(row = serviceRequest?.startDate?.dayOfWeek?.getDisplayName(java.time.format.TextStyle.FULL, Locale.getDefault()), description ="Start date" )
-            if(!serviceRequest?.endDate?.toString().isNullOrEmpty()){
-
-                RowWithValue(row = serviceRequest?.endDate?.dayOfWeek?.getDisplayName(java.time.format.TextStyle.FULL, Locale.getDefault()), description ="End date" )
-            }
-            RowWithValue(row = serviceRequest?.lastStatus?.visibleName.toString(), description ="Last status" )
-
-
-        }
-  Column(modifier = Modifier
-      .background(Color.Gray)
-      .fillMaxWidth()
-      .padding(10.dp)){
-     RowWithValue(row = serviceRequest?.device?.deviceType?.visibleName.plus(" ").plus(serviceRequest?.device?.deviceName.toString()), description ="Device name" )
-      RowWithValue(row = serviceRequest?.device?.deviceSerialNumber.toString(), description ="Serial number" )
-}
-
-DeviceItem(deviceName = serviceRequest?.device?.deviceName.toString(), deviceType =serviceRequest?.device?.deviceType?.visibleName.toString() , deviceSerialNumber =serviceRequest?.device?.deviceSerialNumber.toString() ) {
-    
-}
-CustomerInfoIcons(firstName = serviceRequest?.customer?.firstName.toString(), lastName = serviceRequest?.customer?.lastName.toString(), phoneNumber =serviceRequest?.customer?.phoneNumber.toString(),false )
-
-        Text(text = "Status History")
-        serviceRequest?.statusHistoryList?.forEach { statusHistory ->
-            Column(
-                Modifier
-                    .fillMaxWidth()
-                    .padding(20.dp)
-                    .background(Color(25, 118, 50))) {
-                Text(text = "ID")
-                Text(text = statusHistory.id.toString())
-                Text(text = "Status")
-                Text(text = statusHistory.status.toString())
-                Text(text = "Description")
-                Text(text = statusHistory.comment.toString())
-                Text(text = "Date")
-                Text(text = statusHistory.time.toString())
-            }
-
-        }
     }
-}
 
+}
 @Composable
 fun RowWithValue(row: String?, description: String, modifier: Modifier = Modifier, overflow: Boolean = false) {
     Column(modifier= Modifier.padding(vertical = 2.dp) ) {
