@@ -10,7 +10,7 @@ import com.example.andtest.api.dto.ServiceRequestWithDetailsDto
 import com.example.andtest.api.dto.StatusHistoryDtoRequest
 import com.example.andtest.api.service.ServiceInterface
 
-class AddStatusScreenViewModel(private val authService: ServiceInterface,  val serviceId: Long): ViewModel() {
+class AddStatusScreenViewModel(private val authService: ServiceInterface,  val serviceId: Long,val sharedViewModel: SharedViewModel): ViewModel() {
     val status : MutableLiveData<StatusHistoryDtoRequest> = MutableLiveData()
     val isBodyPresent = MutableLiveData<Boolean>()
 
@@ -26,11 +26,11 @@ class AddStatusScreenViewModel(private val authService: ServiceInterface,  val s
 
 
 }
-class AddStatusScreenViewModelFactory(private val authService: ServiceInterface, val serviceId: Long) :
+class AddStatusScreenViewModelFactory(private val authService: ServiceInterface, val serviceId: Long,private val sharedViewModel: SharedViewModel) :
     ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(AddStatusScreenViewModel::class.java)) {
-            return AddStatusScreenViewModel(authService,serviceId) as T
+            return AddStatusScreenViewModel(authService,serviceId, sharedViewModel ) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

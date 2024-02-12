@@ -11,7 +11,7 @@ import com.example.andtest.api.service.ServiceInterface
 open class ServiceDetailsViewModel(
     private val authService: ServiceInterface,
     private val id: Long,
-    private val sharedViewModel: SharedViewModel
+     val sharedViewModel: SharedViewModel
 ): ViewModel() {
 
     fun shareServiceRequest(price:Long,description:String){

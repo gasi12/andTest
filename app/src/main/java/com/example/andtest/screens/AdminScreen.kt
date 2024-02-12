@@ -49,10 +49,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavController
+import com.example.andtest.R
 import com.example.andtest.components.DeviceCardAlt
 import com.example.andtest.components.UserCard
 import com.example.andtest.navigation.Screen
@@ -134,19 +136,22 @@ fun AdminScreen(viewModel: AdminScreenViewModel, navController: NavController){
             topBar = {
                 TopAppBar(
                     modifier = Modifier.background(Color.Yellow),
-                    title = { Text("Admin screen hopefully")},
+                    title = { Text(stringResource(R.string.admin))},
                     colors = TopAppBarDefaults.topAppBarColors(
                         containerColor = MaterialTheme.colorScheme.surface,
                     ),
                     navigationIcon = {
                         IconButton(onClick = { navController.navigateUp()}) {
-                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(
+                                R.string.back
+                            )
+                            )
                         }
                     }
                 )
             }, floatingActionButton = {
                 FloatingActionButton(onClick = {navController.navigate(Screen.INVITEUSER.name) }) {
-                    Icon(Icons.Default.Add, contentDescription = "Add")
+                    Icon(Icons.Default.Add, contentDescription = stringResource(R.string.add))
                 }
             }
         ){
@@ -222,7 +227,7 @@ fun AdminScreen(viewModel: AdminScreenViewModel, navController: NavController){
 
 
                                             ) {
-                                                Text("Promote to user")
+                                                Text(stringResource(R.string.promote_to_user))
                                             }
                                         }
                                         if(user.role=="USER"){
@@ -237,7 +242,7 @@ fun AdminScreen(viewModel: AdminScreenViewModel, navController: NavController){
 
 
                                             ) {
-                                                Text("Promote to admin")
+                                                Text(stringResource(R.string.promote_to_admin))
                                             }
                                         }
 
@@ -250,7 +255,7 @@ fun AdminScreen(viewModel: AdminScreenViewModel, navController: NavController){
                                                 .fillMaxWidth()
                                                 .weight(1f)
                                         ) {
-                                            Text("Delete")
+                                            Text(stringResource(R.string.delete))
                                         }
 
                                     }

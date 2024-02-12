@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -54,22 +55,22 @@ fun InviteUser(navController: NavController, viewModel: InviteUserViewModel) {
     Surface(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.White)
+            .background(MaterialTheme.colorScheme.background)
             .padding(20.dp)
     ) {
 
 
 
         Column(modifier = Modifier.fillMaxWidth()) {
-            NormalTextComponent(value = stringResource(id = R.string.hello))
-            BoldTextComponent(value = stringResource(id = R.string.editService))
+//            NormalTextComponent(value = stringResource(id = R.string.hello))
+            BoldTextComponent(value = stringResource(id = R.string.invite))
             Spacer(modifier = Modifier
                 .fillMaxWidth()
                 .height(30.dp))
 
 
 
-            LastInputTextField(labelValue = "User Email", data = email)
+            LastInputTextField(labelValue = "Email", data = email)
             Spacer(modifier = Modifier
                 .fillMaxWidth()
                 .height(80.dp))
@@ -99,7 +100,7 @@ fun InviteUser(navController: NavController, viewModel: InviteUserViewModel) {
                     scope.launch {
                         localFocusManager.clearFocus()
                         keyboardController?.hide()
-                        snackState.showSnackbar("CHUJ")
+                        snackState.showSnackbar("User exist")
                     }
 
                     isLoading.value=false

@@ -1,8 +1,8 @@
 <resources>
-    <string name="app_name">andTest</string>
-    <string name="hello">Hello there</string>
-    <string name="createAccount">Create an account</string>
-    <string name="login">Lets log in</string>
+    <string name="app_name">Service app</string>
+    <string name="hello">Hello</string>
+    <string name="createAccount">Create account</string>
+    <string name="login">Log in</string>
     <string name="firstName">First name</string>
     <string name="lastName">Last name</string>
     <string name="password">Password</string>
@@ -21,4 +21,20 @@
     <string name="addNewCustomer">Add new customer</string>
     <string name="deviceSerialNumber">Device serial number</string>
     <string name="editService">Edit service request</string>
+    <string name="admin">Admin</string>
+    <string name="add">Add</string>
+    <string name="back">Back</string>
+    <string name="promote_to_user">Promote to user</string>
+    <string name="promote_to_admin">Promote to admin</string>
+    <string name="delete">Delete</string>
+    <string name="already_have_an_account">Already have an account?</string>
+    <string name="sign_in">Sign in</string>
+    <string name="confirm">Confirm</string>
+    <string name="cancel">Cancel</string>
+    <string name="device">Device</string>
+    <string name="device_type">Device type</string>
+    <string name="device_serial_number">Device serial number</string>
+    <string name="serial_number">Serial number</string>
+    <string name="name">Name</string>
+    <string name="customer">Customer</string>
 </resources>

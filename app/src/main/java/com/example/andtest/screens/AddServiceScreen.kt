@@ -14,14 +14,20 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -36,6 +42,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -65,6 +72,7 @@ import com.example.andtest.components.MultiLineInputTextField
 import com.example.andtest.components.NormalTextComponent
 import com.example.andtest.viewModels.AddServiceScreenViewModel
 import kotlinx.coroutines.launch
+import kotlin.math.log
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -83,7 +91,7 @@ fun AddServiceScreen(navController: NavController, viewModel: AddServiceScreenVi
     val deviceTypeError = remember { mutableStateOf(false) }
     val deviceSerialNumber = remember { mutableStateOf("") }
     val deviceSerialNumberError= remember { mutableStateOf(false) }
-    val statusPlaceholder = if(deviceType.value=="")"device type" else DeviceType.valueOf(deviceType.value).visibleName
+    val statusPlaceholder = if(deviceType.value=="") stringResource(id =R.string.device_type ) else deviceType.value
     val price = remember { mutableStateOf("") }
     val coroutineScope = rememberCoroutineScope()
     val focusRequester = remember { FocusRequester() }
@@ -108,7 +116,7 @@ fun AddServiceScreen(navController: NavController, viewModel: AddServiceScreenVi
             listOf()
         )
     )
-
+    val keyboardController = LocalSoftwareKeyboardController.current
     val fields = listOf(
         firstName to firstNameError,
         lastName to lastNameError,
@@ -124,6 +132,11 @@ fun AddServiceScreen(navController: NavController, viewModel: AddServiceScreenVi
             if (field.value.isNotEmpty()) {
                 error.value = false
             }
+            if(field.value.length>=250){
+                field.value =field.value.take(50)
+                focusManager.clearFocus()
+                keyboardController?.hide()
+            }
         }
     }
     LaunchedEffect(key1 = isSentSuccessfully) {
@@ -131,6 +144,28 @@ fun AddServiceScreen(navController: NavController, viewModel: AddServiceScreenVi
            showAlert.value=true
         }
     }
+    LaunchedEffect(phoneNumber.value) {
+      if(phoneNumber.value.length>=9){
+            phoneNumber.value =phoneNumber.value.take(9)
+          focusManager.clearFocus()
+          keyboardController?.hide()
+      }
+    }
+    LaunchedEffect(firstName.value) {
+        if(firstName.value.length>=50){
+            firstName.value =firstName.value.take(50)
+            focusManager.clearFocus()
+            keyboardController?.hide()
+        }
+    }
+    LaunchedEffect(lastName.value) {
+        if(lastName.value.length>=50){
+            lastName.value = lastName.value.take(50)
+            focusManager.clearFocus()
+            keyboardController?.hide()
+        }
+    }
+
    if(showAlert.value)
    {
        AlertDialogExample(
@@ -142,8 +177,8 @@ fun AddServiceScreen(navController: NavController, viewModel: AddServiceScreenVi
                Log.i("response from post","to id  ${BASE_URL}services/service/${createdServiceId}/report")
                downloader.downloadFile("${BASE_URL}services/service/$createdServiceId/report",createdServiceId?:-1)
                                 navController.popBackStack()},
-           dialogTitle ="Alert" ,
-           dialogText = "Download confirmation?",
+           dialogTitle = stringResource(R.string.alert) ,
+           dialogText = stringResource(R.string.download_confirmation),
            icon = Icons.Default.Info
        )}
 
@@ -193,279 +228,297 @@ fun getUserByPhone(){
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
-            .padding(20.dp)
+
     ) {
-        HorizontalPager(
-            state = pagerState,
-            verticalAlignment = Alignment.Top,
-            userScrollEnabled = false
-        ) { page ->
-            when (page) {
-
-                0 -> {
-                    LazyColumn(modifier = Modifier.fillMaxWidth()) {
-                        item {
-                            NormalTextComponent(value = stringResource(id = R.string.hello))
-                            BoldTextComponent(value = stringResource(id = R.string.customerInfo))
-                            Spacer(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(30.dp)
-                            )
-
-                            LastInputNumberField(
-                                labelValue = stringResource(id = R.string.phoneNumber),
-                                data = phoneNumber,
-                                error =  phoneNumberError.value ,
-                                onEnterPressed = {
-                                    getUserByPhone()
-                                }
-                            )
-                            Spacer(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(80.dp)
-                            )
-                            ButtonComponent(
-                                labelValue = "Next", onClick = {
-                                    getUserByPhone()
-                                }
-                            )
+        Scaffold(
+            topBar = {
+                TopAppBar(
+                    modifier = Modifier.background(MaterialTheme.colorScheme.primaryContainer),
+                    title = { Text(stringResource(id = R.string.addService)) },
+//                    colors = TopAppBarDefaults.topAppBarColors(
+//                        containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+//                    ),
+                    navigationIcon = {
+                        IconButton(onClick = { navController.navigateUp()}) {
+                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                         }
                     }
-                }
+                )
+            }
 
-                1 -> {
-                    when (isDataPresent) {
-                        true -> {
-                            //set items for add request
-                            firstName.value= customerWithDevices?.firstName ?:""
-                            lastName.value=customerWithDevices?.lastName?:""
-                            phoneNumber.value=customerWithDevices?.phoneNumber.toString()
-Column {
-    CustomerDevicesIcons(customerWithDevices = customerWithDevices, onDeviceClick =
-    {
-        skipPage.value = true
-        deviceName.value = it.deviceName
-        deviceSerialNumber.value =
-            it.deviceSerialNumber
-        deviceType.value = it.deviceType.toString()
-        focusManager.clearFocus()
-        coroutineScope.launch {
-            pagerState.animateScrollToPage(pagerState.currentPage + 2)
-        }
-    }
-    )
-    Spacer(modifier = Modifier.height(20.dp))
-    ButtonComponent(labelValue = stringResource(id = R.string.addNewDevice), onClick =
-    {skipPage.value=false
-        navigationSide.value=true
-        coroutineScope.launch {
+        ) {
+            HorizontalPager(
+                modifier = Modifier
+                    .padding(it)
+                    .padding(20.dp)
+                    .padding(top = 20.dp),
+                state = pagerState,
+                verticalAlignment = Alignment.Top,
+                userScrollEnabled = false
+            ) { page ->
+                when (page) {
 
-            pagerState.animateScrollToPage(pagerState.currentPage + 1)
-        }
-    })
+                    0 -> {
+                        LazyColumn(modifier = Modifier.fillMaxWidth()) {
+                            item {
+//                                NormalTextComponent(value = stringResource(id = R.string.hello))
+//                                BoldTextComponent(value = stringResource(id = R.string.customerInfo))
+//                                Spacer(
+//                                    modifier = Modifier
+//                                        .fillMaxWidth()
+//                                        .height(30.dp)
+//                                )
 
-}
+                                LastInputNumberField(
+                                    labelValue = stringResource(id = R.string.phoneNumber),
+                                    data = phoneNumber,
+                                    error =  phoneNumberError.value ,
+                                    onEnterPressed = {
+                                        getUserByPhone()
+                                    }
+                                )
+                                Spacer(modifier = Modifier.padding(40.dp))
 
-
-
+                                ButtonComponent(
+                                    labelValue = "Next", onClick = {
+                                        getUserByPhone()
+                                    }
+                                )
+                            }
                         }
-                        false -> {
+                    }
 
-                            LazyColumn()
-                            {
-                                item {
-                                    if(navigationSide.value) {
-                                        LaunchedEffect(Unit) {
-                                            focusRequester.requestFocus()
+                    1 -> {
+                        when (isDataPresent) {
+                            true -> {
+                                //set items for add request
+                                firstName.value= customerWithDevices?.firstName ?:""
+                                lastName.value=customerWithDevices?.lastName?:""
+                                phoneNumber.value=customerWithDevices?.phoneNumber.toString()
+                                Column {
+                                    CustomerDevicesIcons(customerWithDevices = customerWithDevices, onDeviceClick =
+                                    {
+                                        skipPage.value = true
+                                        deviceName.value = it.deviceName
+                                        deviceSerialNumber.value =
+                                            it.deviceSerialNumber
+                                        deviceType.value = it.deviceType.toString()
+                                        focusManager.clearFocus()
+                                        coroutineScope.launch {
+                                            pagerState.animateScrollToPage(pagerState.currentPage + 2)
                                         }
                                     }
-                                    InputTextField(
-                                        labelValue = stringResource(id = R.string.firstName),
-                                        data = firstName,
-                                        error = firstNameError.value,
-                                        modifier = if(navigationSide.value) Modifier.focusRequester(focusRequester) else Modifier
                                     )
-                                    LastInputTextField(
-                                        labelValue = stringResource(id = R.string.lastName),
-                                        data = lastName,
-                                        error = lastNameError.value,
-                                        onEnterPressed = {
+                                    Spacer(modifier = Modifier.padding(40.dp))
+                                    ButtonComponent(labelValue = stringResource(id = R.string.addNewDevice), onClick =
+                                    {skipPage.value=false
+                                        navigationSide.value=true
+                                        coroutineScope.launch {
+
+                                            pagerState.animateScrollToPage(pagerState.currentPage + 1)
+                                        }
+                                    })
+
+                                }
+
+
+
+                            }
+                            false -> {
+
+                                LazyColumn()
+                                {
+                                    item {
+                                        if(navigationSide.value) {
+                                            LaunchedEffect(Unit) {
+                                                focusRequester.requestFocus()
+                                            }
+                                        }
+                                        InputTextField(
+                                            labelValue = stringResource(id = R.string.firstName),
+                                            data = firstName,
+                                            error = firstNameError.value,
+                                            modifier = if(navigationSide.value) Modifier.focusRequester(focusRequester) else Modifier
+                                        )
+                                        LastInputTextField(
+                                            labelValue = stringResource(id = R.string.lastName),
+                                            data = lastName,
+                                            error = lastNameError.value,
+                                            onEnterPressed = {
+                                                if (firstName.value.isNotEmpty() && lastName.value.isNotEmpty()) {
+                                                    navigationSide.value=true
+                                                    focusManager.clearFocus()
+                                                    coroutineScope.launch {
+                                                        pagerState.animateScrollToPage(pagerState.currentPage + 1)
+                                                    }
+                                                } else {
+                                                    firstNameError.value = firstName.value.isEmpty()
+                                                    lastNameError.value = lastName.value.isEmpty()
+                                                }
+                                            }
+                                        )
+
+                                        InputTextField(
+                                            labelValue = stringResource(id = R.string.phoneNumber),
+                                            data = phoneNumber,
+                                            readOnly = true,
+
+                                            )
+                                        Spacer(modifier = Modifier.padding(40.dp))
+                                        ButtonComponent(labelValue = stringResource(id = R.string.addNewCustomer), onClick =
+                                        {
                                             if (firstName.value.isNotEmpty() && lastName.value.isNotEmpty()) {
                                                 navigationSide.value=true
-                                                focusManager.clearFocus()
+
                                                 coroutineScope.launch {
                                                     pagerState.animateScrollToPage(pagerState.currentPage + 1)
                                                 }
+                                                focusManager.clearFocus()
                                             } else {
                                                 firstNameError.value = firstName.value.isEmpty()
                                                 lastNameError.value = lastName.value.isEmpty()
                                             }
-                                        }
-                                    )
-                                    InputTextField(
-                                        labelValue = stringResource(id = R.string.phoneNumber),
-                                        data = phoneNumber,
-                                        readOnly = true,
-
-                                    )
-                                    ButtonComponent(labelValue = stringResource(id = R.string.addNewCustomer), onClick =
-                                    {
-                                        if (firstName.value.isNotEmpty() && lastName.value.isNotEmpty()) {
-                                            navigationSide.value=true
-
-                                            coroutineScope.launch {
-                                                pagerState.animateScrollToPage(pagerState.currentPage + 1)
-                                            }
-                                            focusManager.clearFocus()
-                                        } else {
-                                            firstNameError.value = firstName.value.isEmpty()
-                                            lastNameError.value = lastName.value.isEmpty()
-                                        }
-                                    })
+                                        })
+                                    }
                                 }
                             }
-                        }
 
-                        else -> {
-                            CircularProgressIndicator()
+                            else -> {
+                                CircularProgressIndicator()
 
 
+                            }
                         }
                     }
-                }
-                2 -> {
-                                        LazyColumn(modifier = Modifier.fillMaxWidth()) {
+                    2 -> {
+                        LazyColumn(modifier = Modifier.fillMaxWidth()) {
 
-                        item {
-                            NormalTextComponent(value = stringResource(id = R.string.hello))
-                            BoldTextComponent(value = stringResource(id = R.string.addNewDevice))
-                            Spacer(modifier = Modifier
-                                .fillMaxWidth()
-                                .height(30.dp))
+                            item {
+//                                NormalTextComponent(value = stringResource(id = R.string.hello))
+//                                BoldTextComponent(value = stringResource(id = R.string.addNewDevice))
+                                Spacer(modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(30.dp))
 
 
-                            ExposedDropdownMenuBox(
-                                expanded =isExpanded ,
-                                onExpandedChange ={
-                                    isExpanded=it
-                                    error.value=false
-                                } ) {
-                                DropDownTextField(labelValue = "Device type", placeholder =statusPlaceholder , modifier = Modifier.menuAnchor(), data =deviceType , expanded =isExpanded, error =deviceTypeError.value  )
-                                ExposedDropdownMenu(expanded = isExpanded, onDismissRequest = { isExpanded=false}) {
-                                    DeviceType.values().forEach { statusValue->
-                                        DropdownMenuItem(
-                                            text = { Text(text = statusValue.visibleName) },
-                                            onClick = {
-                                                deviceType.value=statusValue.name
-                                                isExpanded=false})
+                                ExposedDropdownMenuBox(
+                                    expanded =isExpanded ,
+                                    onExpandedChange ={
+                                        isExpanded=it
+                                        error.value=false
+                                    } ) {
+                                    DropDownTextField(labelValue = stringResource(id = R.string.device_type), placeholder =statusPlaceholder, modifier = Modifier.menuAnchor(), data =deviceType , expanded =isExpanded, error =deviceTypeError.value  )
+                                    ExposedDropdownMenu(expanded = isExpanded, onDismissRequest = { isExpanded=false}) {
+                                        DeviceType.values().forEach { statusValue->
+                                            DropdownMenuItem(
+                                                text = { Text(text = stringResource(id = statusValue.title)) },
+                                                onClick = {
+                                                    deviceType.value=statusValue.name
+                                                    isExpanded=false})
 
+                                        }
                                     }
                                 }
-                            }
-                            InputTextField(labelValue = stringResource(id = R.string.deviceSerialNumber), data = deviceSerialNumber,error = deviceSerialNumberError.value)
-                            LastInputTextField(labelValue = stringResource(id = R.string.deviceName), data = deviceName, error = deviceNameError.value,
-                                onEnterPressed = {
-                                    navigationSide.value=true
-                                    coroutineScope.launch {
-                                        pagerState.animateScrollToPage(pagerState.currentPage + 1)
-                                    }
-                                })
-                            Spacer(modifier = Modifier
-                                .fillMaxWidth()
-                                .height(20.dp))
-
-
-                            ButtonComponent(
-                                labelValue = stringResource(id = R.string.submit) , onClick = {
-                                    if(deviceSerialNumber.value.isNotEmpty()&&deviceName.value.isNotEmpty()){
+                                InputTextField(labelValue = stringResource(id = R.string.deviceSerialNumber), data = deviceSerialNumber,error = deviceSerialNumberError.value)
+                                LastInputTextField(labelValue = stringResource(id = R.string.deviceName), data = deviceName, error = deviceNameError.value,
+                                    onEnterPressed = {
                                         navigationSide.value=true
-                                        focusManager.clearFocus()
                                         coroutineScope.launch {
                                             pagerState.animateScrollToPage(pagerState.currentPage + 1)
                                         }
+                                    })
+                                Spacer(modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(20.dp))
+
+
+                                ButtonComponent(
+                                    labelValue = stringResource(id = R.string.submit) , onClick = {
+                                        if(deviceSerialNumber.value.isNotEmpty()&&deviceName.value.isNotEmpty()){
+                                            navigationSide.value=true
+                                            focusManager.clearFocus()
+                                            coroutineScope.launch {
+                                                pagerState.animateScrollToPage(pagerState.currentPage + 1)
+                                            }
+                                        }
+                                        else{
+                                            deviceNameError.value = deviceName.value.isEmpty()
+                                            deviceSerialNumberError.value = deviceSerialNumber.value.isEmpty()
+                                        }
                                     }
-                                    else{
-                                        deviceNameError.value = deviceName.value.isEmpty()
-                                        deviceSerialNumberError.value = deviceSerialNumber.value.isEmpty()
-                                    }
-                                }
-                            )
+                                )
+                            }
                         }
                     }
-                }
-                3 -> {
-                    LazyColumn(modifier = Modifier.fillMaxWidth()) {
-                        item {
-                            NormalTextComponent(value = stringResource(id = R.string.hello))
-                            BoldTextComponent(value = stringResource(id = R.string.serviceInfo))
-                            Spacer(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(30.dp)
-                            )
+                    3 -> {
+                        LazyColumn(modifier = Modifier.fillMaxWidth()) {
+                            item {
+//                                NormalTextComponent(value = stringResource(id = R.string.hello))
+//                                BoldTextComponent(value = stringResource(id = R.string.serviceInfo))
+                                Spacer(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(30.dp)
+                                )
 
                                 if(navigationSide.value&&pagerState.currentPage==3) {
                                     LaunchedEffect(Unit) {
                                         focusRequester.requestFocus()
                                     }
                                 }
-                            InputNumberField(
-                                labelValue = stringResource(id = R.string.price),
-                                data = price,
-                                modifier =  if(navigationSide.value) Modifier.focusRequester(focusRequester) else Modifier
-                            )
-                            MultiLineInputTextField(
-                                labelValue = stringResource(id = R.string.description),
-                                data = description,
-                                maxLines = 4,
-                                error = descriptionError.value
-                            )
-                            Spacer(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(30.dp)
-                            )
-                            ButtonComponent(
-                                labelValue = stringResource(id = R.string.submit), onClick = {
-                                    price.value = price.value.let { if (it == "") "0" else it }
-                        if(description.value.isNotEmpty()&&deviceName.value.isNotEmpty()&&deviceSerialNumber.value.isNotEmpty()){
-                        viewModel.addCustomerWithDeviceAndService(
-                            CustomerAndDevicesAndServiceRequestsDto(
-                                Customer(
-                                    0,
-                                    firstName.value,
-                                    lastName.value,
-                                    phoneNumber.value.toLong()
-                                ),
-                                Device(
-                                    0,
-                                    deviceName.value,
-                                    deviceSerialNumber.value,
-                                    DeviceType.valueOf(deviceType.value)
-                                ),
-                                ServiceRequestEditor(
-                                    description.value,
-                                    price.value.toLong()
+                                InputNumberField(
+                                    labelValue = stringResource(id = R.string.price),
+                                    data = price,
+                                    modifier =  if(navigationSide.value) Modifier.focusRequester(focusRequester) else Modifier
                                 )
-                            )
-                        )
-                    }
-                                    else{
-                                    descriptionError.value=description.value.isEmpty()
+                                MultiLineInputTextField(
+                                    labelValue = stringResource(id = R.string.description),
+                                    data = description,
+                                    maxLines = 4,
+                                    error = descriptionError.value
+                                )
+                                Spacer(modifier = Modifier.padding(40.dp))
+                                ButtonComponent(
+                                    labelValue = stringResource(id = R.string.submit), onClick = {
+                                        price.value = price.value.let { if (it == "") "0" else it }
+                                        if(description.value.isNotEmpty()&&deviceName.value.isNotEmpty()&&deviceSerialNumber.value.isNotEmpty()){
+                                            viewModel.addCustomerWithDeviceAndService(
+                                                CustomerAndDevicesAndServiceRequestsDto(
+                                                    Customer(
+                                                        0,
+                                                        firstName.value,
+                                                        lastName.value,
+                                                        phoneNumber.value.toLong()
+                                                    ),
+                                                    Device(
+                                                        0,
+                                                        deviceName.value,
+                                                        deviceSerialNumber.value,
+                                                        DeviceType.valueOf(deviceType.value)
+                                                    ),
+                                                    ServiceRequestEditor(
+                                                        description.value,
+                                                        price.value.toLong()
+                                                    )
+                                                )
+                                            )
+                                        }
+                                        else{
+                                            descriptionError.value=description.value.isEmpty()
+
+                                        }
+
+
 
                                     }
+                                )
 
-
-
-                                }
-                            )
-
+                            }
                         }
                     }
                 }
             }
+
         }
 
     }

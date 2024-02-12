@@ -118,6 +118,16 @@ interface MyApi {
     fun promoteToUser(
         @Path("id") id : Long
     ): Call<Void>
+
+    @DELETE("/customer/{id}")
+    fun deleteCustomerById(
+        @Path("id") id : Long
+    ): Call<Void>
+
+    @DELETE("/device/{id}")
+    fun deleteDeviceById(
+        @Path("id") id : Long
+    ): Call<Void>
 }
 
 

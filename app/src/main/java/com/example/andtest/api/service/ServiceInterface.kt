@@ -34,6 +34,8 @@ interface ServiceInterface {
     fun deleteServiceById(id:Long,callback:(Boolean)-> Unit)
 
     fun deleteUserById(id:Long,callback:(Boolean)-> Unit)
+    fun deleteCustomerById(id:Long,callback:(Boolean)-> Unit)
+    fun deleteDeviceById(id:Long,callback:(Boolean)-> Unit)
     fun inviteUser(body: InviteRequest,callback:(Boolean)-> Unit)
 
     fun addStatusToService(serviceId : Long, body: StatusHistoryDtoRequest,callback: (StatusHistoryDtoRequest?,Boolean) -> Unit)

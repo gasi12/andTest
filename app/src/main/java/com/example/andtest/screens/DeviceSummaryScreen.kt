@@ -45,6 +45,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.toLowerCase
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavController
@@ -58,9 +59,9 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterialApi::class, ExperimentalFoundationApi::class)
 @Composable
 fun DeviceSummaryScreen(viewModel: DeviceSummaryScreenViewModel, navController: NavController){
-    Button(onClick ={ navController.navigate(Screen.REGISTER.name)}) {
-        Text(text = "devicescreen")
-    }
+//    Button(onClick ={ navController.navigate(Screen.REGISTER.name)}) {
+//        Text(text = "devicescreen")
+//    }
 
     var topBarQuery by viewModel.sharedViewModel.topBarQuery
     val devices by viewModel.sharedViewModel.devices.observeAsState(initial = emptyList())
@@ -72,7 +73,7 @@ fun DeviceSummaryScreen(viewModel: DeviceSummaryScreenViewModel, navController: 
     val endOfListReached by derivedStateOf {
         listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index == listState.layoutInfo.totalItemsCount - 1
     }
-    val filteredDevices = devices.filter { it.deviceSerialNumber.toString().startsWith(topBarQuery)  }
+    val filteredDevices = devices.filter { it.deviceSerialNumber.startsWith(topBarQuery, ignoreCase = true) || it.deviceName.startsWith(topBarQuery, ignoreCase = true)}
 
     LaunchedEffect(endOfListReached) {
         if (endOfListReached && initialDataLoaded == true && devices.isNotEmpty()) {
@@ -160,33 +161,33 @@ fun DeviceSummaryScreen(viewModel: DeviceSummaryScreenViewModel, navController: 
                                                 .height(200.dp) // Set the height as per your requirement
                                                 .background(MaterialTheme.colorScheme.background)
                                         ) {
+//                                            TextButton(
+//                                                onClick = {
+//
+//                                                    showDialog = false
+//                                                },
+//                                                modifier = Modifier
+//                                                    .fillMaxWidth()
+//                                                    .weight(1f)
+//                                            ) {
+//                                                Text("Add status")
+//                                            }
+//                                            TextButton(
+//                                                onClick = {
+//
+//                                                    showDialog = false
+//                                                },
+//                                                modifier = Modifier
+//                                                    .fillMaxWidth()
+//                                                    .weight(1f)
+//
+//
+//                                            ) {
+//                                                Text("Edit")
+//                                            }
                                             TextButton(
                                                 onClick = {
-
-                                                    showDialog = false
-                                                },
-                                                modifier = Modifier
-                                                    .fillMaxWidth()
-                                                    .weight(1f)
-                                            ) {
-                                                Text("Add status")
-                                            }
-                                            TextButton(
-                                                onClick = {
-
-                                                    showDialog = false
-                                                },
-                                                modifier = Modifier
-                                                    .fillMaxWidth()
-                                                    .weight(1f)
-
-
-                                            ) {
-                                                Text("Edit")
-                                            }
-                                            TextButton(
-                                                onClick = {
-
+                                                    viewModel.sharedViewModel.deleteDeviceById(device.id)
                                                     showDialog = false
                                                 },
                                                 modifier = Modifier

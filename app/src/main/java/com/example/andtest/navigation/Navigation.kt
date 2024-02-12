@@ -153,7 +153,7 @@ import com.example.andtest.viewModels.SignupScreenViewModelFactory
                 val serviceId = backStackEntry.arguments?.getString("serviceId")?.toLong()
                 if (serviceId != null) {
                     val viewModel: AddStatusScreenViewModel =
-                        viewModel(factory = AddStatusScreenViewModelFactory(authService, serviceId))
+                        viewModel(factory = AddStatusScreenViewModelFactory(authService, serviceId,sharedViewModel))
                     AddStatusScreen(navController, viewModel)
                 }
             }

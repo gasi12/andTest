@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
@@ -22,6 +23,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
@@ -94,14 +96,15 @@ val navigateToHome by viewModel.navigateToHome
     Surface(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.White)
+            .background(MaterialTheme.colorScheme.background)
             .padding(20.dp)
     ) {
         Column(modifier = Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.SpaceBetween) {
 
             Column (modifier=Modifier.fillMaxWidth()){
-                NormalTextComponent(value = stringResource(id = R.string.hello))
+                Spacer(modifier = Modifier.height(20.dp))
+//                NormalTextComponent(value = stringResource(id = R.string.hello))
                 BoldTextComponent(value = stringResource(id = R.string.createAccount))
                 Spacer(modifier = Modifier
                     .fillMaxWidth()
@@ -113,11 +116,18 @@ val navigateToHome by viewModel.navigateToHome
                 Spacer(modifier = Modifier
                     .fillMaxWidth()
                     .height(80.dp))
-                ButtonComponent(
-                    labelValue = "BUTTON", onClick = {
-                        viewModel.register(firstName.value,lastName.value,email.value,password.value)
-                    }
-                )
+                Column(Modifier.padding(horizontal = 20.dp)) {
+                    ButtonComponent(
+                        labelValue = stringResource(R.string.register_urself), onClick = {
+                            viewModel.register(
+                                firstName.value,
+                                lastName.value,
+                                email.value,
+                                password.value
+                            )
+                        }
+                    )
+                }
             }
             SnackbarHost(hostState = snackState)
             Column (modifier= Modifier
@@ -134,12 +144,13 @@ val navigateToHome by viewModel.navigateToHome
 
 
                 Column {
-                    Row(modifier= Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+                    Row(modifier= Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically) {
 
-                        Text(text = "Already have an account? ")
+                        Text(text = stringResource(R.string.already_have_an_account))
                         val annotatedString = buildAnnotatedString {
-                            withStyle(style = SpanStyle(color = Color.Red)) {
-                                append("Sign in")
+                            withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.secondary)) {
+                                append(" ")
+                                append(stringResource(R.string.sign_in))
                             }
 
                         }

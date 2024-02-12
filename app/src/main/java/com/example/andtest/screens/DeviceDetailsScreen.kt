@@ -27,8 +27,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.example.andtest.R
 import com.example.andtest.components.DeviceItemIcons
 import com.example.andtest.components.ServiceRequestIcons
 import com.example.andtest.navigation.Screen
@@ -54,7 +56,7 @@ fun DeviceDetailsScreen(viewModel: DeviceDetailsViewModel, navController: NavCon
             topBar = {
                 TopAppBar(
                     modifier = Modifier.background(Color.Yellow),
-                    title = { Text("Customer details screen hopefully") },
+                    title = { Text(stringResource(R.string.deviceDetails)) },
                     colors = TopAppBarDefaults.topAppBarColors(
                         containerColor = MaterialTheme.colorScheme.surface,
                     ),
@@ -78,7 +80,7 @@ fun DeviceDetailsScreen(viewModel: DeviceDetailsViewModel, navController: NavCon
                             item{
                                 DeviceItemIcons(
                                     device.value?.deviceName ?: "",
-                                    device.value?.deviceType?.visibleName ?: "",
+                                   if(device.value?.deviceType?.title==null)"" else stringResource(id = device.value?.deviceType?.title!!)  ,
                                     device.value?.deviceSerialNumber ?: "",
                                     primaryColor = true,
                                     onDeviceClick = { Log.i("WTF",device.value?.serviceRequestList.toString())}

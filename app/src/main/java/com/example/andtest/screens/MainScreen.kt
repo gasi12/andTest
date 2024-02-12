@@ -55,6 +55,7 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -161,7 +162,7 @@ fun MainScreen (authService:ServiceInterface,navController: NavController,shared
                         // Your drawer content here
                         NavigationDrawerItem(
                             icon = { Icon(painter = painterResource(id = R.drawable.tools), contentDescription = null) },
-                            label = { Text(Screen.SERVICESUMMARY.visibleName) },
+                            label = { Text(stringResource(id = R.string.servicesScreen)) },
                             selected = selectedItem == Screen.SERVICESUMMARY.name,
                             onClick = {
 
@@ -172,7 +173,7 @@ fun MainScreen (authService:ServiceInterface,navController: NavController,shared
                         )
                         NavigationDrawerItem(
                             icon = { Icon(painterResource(id = R.drawable.person), contentDescription = null) },
-                            label = { Text(Screen.CUSTOMERSUMMARY.visibleName) },
+                            label = { Text(stringResource(id = R.string.customerScreen)) },
                             selected = selectedItem == Screen.CUSTOMERSUMMARY.name,
                             onClick = {
 
@@ -188,7 +189,7 @@ fun MainScreen (authService:ServiceInterface,navController: NavController,shared
                         )
                         NavigationDrawerItem(
                             icon = { Icon(painterResource(id = R.drawable.devices), contentDescription = null) },
-                            label = { Text(Screen.DEVICESUMMARY.visibleName) },
+                            label = { Text(stringResource(id = R.string.deviceSummary)) },
                             selected = selectedItem == Screen.DEVICESUMMARY.name,
                             onClick = {
 
@@ -199,7 +200,7 @@ fun MainScreen (authService:ServiceInterface,navController: NavController,shared
                         if(securePreferences.getAnything("role") == "ADMIN"){
                             NavigationDrawerItem(
                                 icon = { Icon(painterResource(id = R.drawable.baseline_visibility_off_24), contentDescription = null) },
-                                label = { Text("Admin screen") },
+                                label = { Text(stringResource(id = R.string.admin)) },
                                 selected = selectedItem == Screen.ADMINSCREEN.name,
                                 onClick = {
                                     scope.launch {
@@ -221,7 +222,7 @@ fun MainScreen (authService:ServiceInterface,navController: NavController,shared
                             
                             NavigationDrawerItem(
                                 icon = { Icon(painterResource(id = R.drawable.logout), contentDescription = "Logout") },
-                                label = { Text("Logout") },
+                                label = { Text(stringResource(id = R.string.logout)) },
                                 selected = false,
                                 onClick = {
                                    
@@ -293,7 +294,7 @@ fun MainScreen (authService:ServiceInterface,navController: NavController,shared
                                         focusedContainerColor = Color.Transparent,
                                         unfocusedContainerColor = Color.Transparent
                                     ),
-                                    label = { Text("Search") },
+                                    label = { Text(stringResource(id = R.string.search)) },
                                     leadingIcon = {Icon(Icons.Default.Search,"SEARCH")},
                                     value = topBarQuery,
                                     onValueChange ={ topBarQuery = it },

@@ -104,6 +104,8 @@ class SharedViewModel(private val authService: ServiceInterface) : ViewModel() {
         {isSuccessful ->
             if(isSuccessful)
                 serviceRequests.value = serviceRequests.value?.filterNot { it.id == serviceId }
+            refreshDevices()
+            refreshCustomers()
         }
     }
     fun deleteUserById(id: Long){
@@ -113,8 +115,29 @@ class SharedViewModel(private val authService: ServiceInterface) : ViewModel() {
                 users.value = users.value?.filterNot { it.id == id }
         }
     }
+    fun deleteCustomerById(id: Long){
+        authService.deleteCustomerById(id)
+        {isSuccessful ->
+            if(isSuccessful)
+                customers.value = customers.value?.filterNot { it.id == id }
+
+        }
+        refreshServices()
+        refreshDevices()
+    }
+    fun deleteDeviceById(id: Long){
+        authService.deleteDeviceById(id)
+        {isSuccessful ->
+            if(isSuccessful)
+                devices.value = devices.value?.filterNot { it.id == id }
+
+        }
+        refreshServices()
+
+    }
 
     fun refreshServices() {
+        serviceRequests.value = emptyList()
         currentPageServices = 0
         isLastPageEmptyServices.value=false
         serviceRequests.value = emptyList()

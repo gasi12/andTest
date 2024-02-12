@@ -417,7 +417,7 @@ Log.i("getservicedetails","id: $id")
                 }
 
                 override fun onFailure(call: Call<CustomerAndDevicesAndServiceResponseDto>, t: Throwable) {
-                    Log.i("onFail->deleteServiceById","failed with reason ${t.message}")
+                    Log.i("onFail->addCustomerWithDeviceAndService","failed with reason ${t.message}")
                     callback(null,false)
                 }
             })
@@ -574,4 +574,46 @@ Log.i("getservicedetails","id: $id")
                     }
                 }
             })}
+
+    override fun deleteCustomerById(id: Long, callback: (Boolean) -> Unit) {
+        Log.i("sent id", id.toString())
+        authApi.deleteCustomerById(id)
+            .enqueue(object : Callback<Void> {
+                override fun onResponse(call: Call<Void>, response: Response<Void>) {
+                    Log.i("RESPONSE", response.body().toString())
+                    Log.i("code", response.code().toString())
+                    if(response.isSuccessful){
+                        callback(true)
+                    } else {
+                        callback(false)
+                    }
+                }
+
+                override fun onFailure(call: Call<Void>, t: Throwable) {
+                    Log.i("onFail->deleteUserById","failed with reason ${t.message}")
+                    callback(false)
+                }
+            })
+    }
+    override fun deleteDeviceById(id: Long, callback: (Boolean) -> Unit) {
+        Log.i("sent id", id.toString())
+        authApi.deleteDeviceById(id)
+            .enqueue(object : Callback<Void> {
+                override fun onResponse(call: Call<Void>, response: Response<Void>) {
+                    Log.i("RESPONSE", response.body().toString())
+                    Log.i("code", response.code().toString())
+                    if(response.isSuccessful){
+                        callback(true)
+                    } else {
+                        callback(false)
+                    }
+                }
+
+                override fun onFailure(call: Call<Void>, t: Throwable) {
+                    Log.i("onFail->deleteUserById","failed with reason ${t.message}")
+                    callback(false)
+                }
+            })
+    }
+
 }

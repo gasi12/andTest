@@ -89,7 +89,7 @@ fun ServicesSummaryScreen(viewModel: ServicesSummaryScreenViewModel, navControll
     val endOfListReached by derivedStateOf {
         listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index == listState.layoutInfo.totalItemsCount - 1
     }
-    val filteredServiceRequests = serviceRequests.filter { it.customerLastName.startsWith(topBarQuery)  }
+    val filteredServiceRequests = serviceRequests.filter { it.customerLastName.startsWith(topBarQuery, ignoreCase = true)||it.description.startsWith(topBarQuery, ignoreCase = true) }
 
     LaunchedEffect(endOfListReached) {
         if (endOfListReached && initialDataLoaded == true && serviceRequests.isNotEmpty()) {
@@ -305,11 +305,11 @@ fun ServiceSummaryCard(serviceRequest: ServiceRequestWithUserNameDtoResponse){
             modifier = Modifier.padding(0.dp),
             fontWeight = FontWeight.Bold,
         )
-        Text(
-            text = serviceRequest.deviceType.visibleName.plus(" ").plus(serviceRequest.deviceName),
-            color = MaterialTheme.colorScheme.onSecondaryContainer,
-            modifier = Modifier.padding(0.dp)
-        )
+//        Text(
+//            text = serviceRequest.deviceType.visibleName.plus(" ").plus(serviceRequest.deviceName),
+//            color = MaterialTheme.colorScheme.onSecondaryContainer,
+//            modifier = Modifier.padding(0.dp)
+//        )
         Text(
             text = "Description",
             color = MaterialTheme.colorScheme.onSecondaryContainer,

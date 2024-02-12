@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
@@ -37,6 +38,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -45,6 +47,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.andtest.R
 import com.example.andtest.api.dto.Customer
 import com.example.andtest.api.dto.Device
 import com.example.andtest.api.dto.DeviceType
@@ -89,11 +92,11 @@ fun ServiceDetailsScreen(viewModel: ServiceDetailsViewModel, navController: NavC
         Scaffold (
             topBar = {
                 TopAppBar(
-                    modifier = Modifier.background(MaterialTheme.colorScheme.primaryContainer),
-                    title = { Text("Service details screen hopefully") },
-                    colors = topAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.tertiaryContainer,
-                    ),
+//                    modifier = Modifier.background(MaterialTheme.colorScheme.primaryContainer),
+                    title = { Text(stringResource(R.string.serviceDetails)) },
+//                    colors = topAppBarColors(
+//                        containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+//                    ),
                     navigationIcon = {
                         IconButton(onClick = { navController.navigateUp()}) {
                             Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
@@ -126,7 +129,7 @@ fun ServiceDetailsScreen(viewModel: ServiceDetailsViewModel, navController: NavC
                         item {
                             DeviceItemIcons(
                                 deviceName = serviceRequest?.device?.deviceName.toString(),
-                                deviceType = serviceRequest?.device?.deviceType?.visibleName.toString(),
+                                deviceType = if(serviceRequest?.device?.deviceType==null) "" else stringResource(id = serviceRequest?.device?.deviceType?.title!!),
                                 deviceSerialNumber = serviceRequest?.device?.deviceSerialNumber.toString(),
                                 {},
                                 false
@@ -140,13 +143,15 @@ fun ServiceDetailsScreen(viewModel: ServiceDetailsViewModel, navController: NavC
                                 false
                             )
                         }
-                        items(serviceRequest?.statusHistoryList?: listOf()) { statusList ->
+                        items(serviceRequest?.statusHistoryList?.sortedByDescending { it.id }?: listOf()) { statusList ->
                             StatusHistoryIcons(statusHistory = statusList, primaryColor = false)
 
                         }
                         item {
                             Row(
-                                modifier = Modifier.fillMaxWidth(),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(20.dp),
                             ) {
                                 ButtonComponent(
                                     labelValue = "Delete",
@@ -154,6 +159,7 @@ fun ServiceDetailsScreen(viewModel: ServiceDetailsViewModel, navController: NavC
                                         showDialog.value = true
                                     }, modifier = Modifier.weight(1f)
                                 )
+                                Spacer(modifier = Modifier.weight(0.3f))
                                 ButtonComponent(
                                     labelValue = "Edit",
                                     onClick = {
@@ -174,6 +180,7 @@ fun ServiceDetailsScreen(viewModel: ServiceDetailsViewModel, navController: NavC
                             AlertDialogExample(
                                 onDismissRequest = { showDialog.value=false},
                                 onConfirmation = {showDialog.value=false
+                                    viewModel.sharedViewModel.refreshServices()
                                     viewModel.deleteThisServiceRequest()},
                                 dialogTitle ="Do you want to delete this service request?" ,
                                 dialogText ="" ,

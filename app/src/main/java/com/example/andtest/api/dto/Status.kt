@@ -1,8 +1,11 @@
 package com.example.andtest.api.dto
 
-enum class Status(val visibleName: String) {
-    PENDING("Pending"),
-    IN_PROCESS("In process"),
-    ON_HOLD("On hold"),
-    FINISHED("Finished")
+import androidx.annotation.StringRes
+import com.example.andtest.R
+
+enum class Status(@StringRes val title: Int) {
+    PENDING(R.string.statusPending),
+    IN_PROCESS(R.string.statusInProcess),
+    ON_HOLD(R.string.statusOnHold),
+    FINISHED(R.string.statusFinished)
 }

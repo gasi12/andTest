@@ -1,4 +1,4 @@
-package com.example.andtest.components
+ package com.example.andtest.components
 
 import android.util.Log
 import androidx.compose.animation.core.animateFloat
@@ -56,6 +56,7 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
@@ -359,9 +360,10 @@ fun PasswordField(labelValue:String,data:MutableState<String>,error: Boolean=fal
 fun ButtonComponent(labelValue: String, onClick: ()-> Unit,modifier: Modifier= Modifier){
     Button(
         onClick = onClick ,
-        modifier = modifier.then(Modifier
-            .fillMaxWidth()
-            .heightIn(45.dp)),
+        modifier = modifier.then(
+            Modifier
+                .fillMaxWidth()
+                .heightIn(45.dp)),
     contentPadding= PaddingValues(),
         colors = ButtonColors(
             containerColor = MaterialTheme.colorScheme.primaryContainer,
@@ -407,7 +409,7 @@ fun AlertDialogExample(
                     onConfirmation()
                 }
             ) {
-                Text("Confirm")
+                Text(stringResource(R.string.confirm))
             }
         },
         dismissButton = {
@@ -416,7 +418,7 @@ fun AlertDialogExample(
                     onDismissRequest()
                 }
             ) {
-                Text("Dismiss")
+                Text(stringResource(R.string.cancel))
             }
         }
     )
@@ -475,7 +477,7 @@ fun DeviceItem(
     ) {
         Column(modifier = Modifier.padding(10.dp)) {
             Text(
-                text = "Device",
+                text = stringResource(R.string.device),
                 color = MaterialTheme.colorScheme.onSecondaryContainer,
                 modifier = Modifier.padding(0.dp),
                 fontWeight = FontWeight.Bold,
@@ -486,7 +488,7 @@ fun DeviceItem(
                 modifier = Modifier.padding(0.dp)
             )
             Text(
-                text = "Device type",
+                text = stringResource(R.string.device_type),
                 color = MaterialTheme.colorScheme.onSecondaryContainer,
                 modifier = Modifier.padding(0.dp),
                 fontWeight = FontWeight.Bold,
@@ -497,7 +499,7 @@ fun DeviceItem(
                 modifier = Modifier.padding(0.dp)
             )
             Text(
-                text = "Device serial number",
+                text = stringResource(R.string.device_serial_number),
                 color = MaterialTheme.colorScheme.onSecondaryContainer,
                 modifier = Modifier.padding(0.dp),
                 fontWeight = FontWeight.Bold,
@@ -536,11 +538,11 @@ fun DeviceItemIcons(
         propagateMinConstraints = true
     ) {
         Column(modifier = Modifier.padding(10.dp)) {
-            SecondaryText(text = "Device name", modifier = Modifier.padding(horizontal = 35.dp))
+            SecondaryText(text = stringResource(R.string.deviceName), modifier = Modifier.padding(horizontal = 35.dp))
             Row(Modifier.padding(vertical = 3.dp)) {
                 Icon(
                     painterResource(id = R.drawable.deviceinfo),
-                    contentDescription = "Device name",
+                    contentDescription = stringResource(R.string.deviceName),
                     modifier = Modifier.padding(end = 10.dp),
                     tint =   if (primaryColor) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSecondaryContainer
                 )
@@ -549,7 +551,7 @@ fun DeviceItemIcons(
                     color = if (primaryColor) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSecondaryContainer,
                     modifier = Modifier.padding(0.dp))
             }
-            SecondaryText(text = "Device type", modifier = Modifier.padding(horizontal = 35.dp))
+            SecondaryText(text = stringResource(R.string.device_type), modifier = Modifier.padding(horizontal = 35.dp))
             Row(Modifier.padding(vertical = 3.dp)){
                 Icon(
                     painterResource(id = R.drawable.devicetype),
@@ -562,7 +564,7 @@ fun DeviceItemIcons(
                     color = if (primaryColor) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSecondaryContainer,
                     modifier = Modifier.padding(0.dp))
             }
-            SecondaryText(text = "Serial number", modifier = Modifier.padding(horizontal = 35.dp))
+            SecondaryText(text = stringResource(R.string.serial_number), modifier = Modifier.padding(horizontal = 35.dp))
             Row(Modifier.padding(vertical = 3.dp)){
                 Icon(
                     painterResource(id = R.drawable.serialnumber),
@@ -596,7 +598,7 @@ fun CustomerInfoIcons(firstName: String?, lastName: String?, phoneNumber: String
                 .padding(10.dp)
                 .fillMaxWidth()
         ) {
-            SecondaryText(text = "Name", modifier = Modifier.padding(horizontal = 35.dp))
+            SecondaryText(text = stringResource(R.string.customer), modifier = Modifier.padding(horizontal = 35.dp))
             Row(Modifier.padding(vertical = 3.dp)) {
                 Icon(
                     Icons.Default.AccountCircle,
@@ -618,11 +620,11 @@ fun CustomerInfoIcons(firstName: String?, lastName: String?, phoneNumber: String
                 }
               
             }
-            SecondaryText(text = "Phone number", modifier = Modifier.padding(horizontal = 35.dp))
+            SecondaryText(text = stringResource(R.string.phoneNumber), modifier = Modifier.padding(horizontal = 35.dp))
             Row(Modifier.padding(vertical = 3.dp)) {
                 Icon(
                     Icons.Default.Phone,
-                    contentDescription = "Customer",
+                    contentDescription = stringResource(R.string.customer),
                     modifier = Modifier.padding(end = 10.dp),
                     tint = if (primaryColor) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSecondaryContainer
                 )
@@ -653,7 +655,7 @@ fun CustomerDevicesIcons(
                 items(devices) { device ->
                     DeviceItemIcons(
                         deviceName = device.deviceName,
-                        deviceType = device.deviceType.visibleName,
+                        deviceType = stringResource(id = device.deviceType.title),
                         deviceSerialNumber = device.deviceSerialNumber,
                         onDeviceClick = { onDeviceClick(device) },
                         primaryColor = false
@@ -669,7 +671,9 @@ fun ServiceSummaryCardAlt(serviceRequest: ServiceRequestWithUserNameDtoResponse)
         .padding(15.dp)
     ) {
         Row {
-            RowWithValue(row =serviceRequest.customerFirstName.plus(" ").plus(serviceRequest.customerLastName) , description = "Customer")
+            RowWithValue(row =serviceRequest.customerFirstName.plus(" ").plus(serviceRequest.customerLastName) , description = stringResource(
+                id = R.string.customer
+            ))
             Spacer(Modifier.weight(1f))
             Text(
                 text = formatDateToShortLocaleToString(serviceRequest.startDate),
@@ -678,9 +682,9 @@ fun ServiceSummaryCardAlt(serviceRequest: ServiceRequestWithUserNameDtoResponse)
                 fontWeight = FontWeight.Bold,
             )
         }
-        RowWithValue(row =serviceRequest.deviceName , description = "Device")
-        RowWithValue(row =serviceRequest.lastStatus.visibleName , description = "Status")
-        RowWithValue(row = serviceRequest.description, description ="Description",overflow = true )
+        RowWithValue(row =serviceRequest.deviceName , description = stringResource(id = R.string.deviceName))
+        RowWithValue(row =   stringResource(id = serviceRequest.lastStatus.title),  description = "Status")
+        RowWithValue(row = serviceRequest.description, description = stringResource(id = R.string.description),overflow = true )
     }
 }
 @Composable
@@ -689,8 +693,8 @@ fun CustomerCardAlt(customer: Customer){
         .padding(15.dp)
         .fillMaxWidth()
     ) {
-        RowWithValue(row =customer.firstName.plus(" ").plus(customer.lastName) , description = "Customer")
-        RowWithValue(row =customer.phoneNumber.toString() , description = "Phone number")
+        RowWithValue(row =customer.firstName.plus(" ").plus(customer.lastName) , description = stringResource(R.string.customer))
+        RowWithValue(row =customer.phoneNumber.toString() , description = stringResource(R.string.phoneNumber))
     }
 }
 @Composable
@@ -699,9 +703,9 @@ fun DeviceCardAlt(device: Device){
         .padding(15.dp)
         .fillMaxWidth()
     ) {
-        RowWithValue(row =device.deviceName , description = "Name")
-        RowWithValue(row =device.deviceType.visibleName , description = "Type")
-        RowWithValue(row =device.deviceSerialNumber , description = "Serial number")
+        RowWithValue(row =device.deviceName , description = stringResource(id = R.string.description))
+        RowWithValue(row =stringResource(id = device.deviceType.title) , description = stringResource(id = R.string.name))
+        RowWithValue(row =device.deviceSerialNumber , description = stringResource(id = R.string.serial_number))
     }
 }
 @Composable
@@ -710,9 +714,10 @@ fun UserCard(user: UserDto){
         .padding(15.dp)
         .fillMaxWidth()
     ) {
-        RowWithValue(row =user.firstName.plus(" ").plus(user.lastName) , description = "Name")
+        RowWithValue(row =user.firstName.plus(" ").plus(user.lastName) , description = stringResource(id = R.string.user))
         RowWithValue(row =user.email , description = "Email")
-        RowWithValue(row =user.role , description = "Role")
+        RowWithValue(row =if(user.role=="CUSTOMER"){
+            stringResource(id = R.string.waitingForRegister)}else user.role , description = stringResource(id = R.string.role ))
     }
 }
 @OptIn(ExperimentalFoundationApi::class)
@@ -740,12 +745,12 @@ fun ServiceRequestIcons(
         propagateMinConstraints = true
     ) {
         Column(modifier = Modifier.padding(10.dp)) {
-            SecondaryText(text = "Description", modifier = Modifier.padding(horizontal = 35.dp))
+            SecondaryText(text = stringResource(id = R.string.description), modifier = Modifier.padding(horizontal = 35.dp))
             Row(Modifier.padding(vertical = 3.dp)) {
                 // Placeholder for description icon
                 Icon(
                     painterResource(id = R.drawable.description), // Replace with actual icon resource
-                    contentDescription = "Description",
+                    contentDescription = stringResource(id = R.string.description),
                     modifier = Modifier.padding(end = 10.dp),
                     tint = if (primaryColor) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSecondaryContainer,
                 )
@@ -758,21 +763,21 @@ fun ServiceRequestIcons(
 
                 )
             }
-            SecondaryText(text = "Last Status", modifier = Modifier.padding(horizontal = 35.dp))
+            SecondaryText( stringResource(id = R.string.lastStatus), modifier = Modifier.padding(horizontal = 35.dp))
             Row(Modifier.padding(vertical = 3.dp)){
                 // Placeholder for last status icon
                 Icon(
                     painterResource(id = R.drawable.info), // Replace with actual icon resource
-                    contentDescription = "Last Status",
+                    contentDescription = stringResource(id = R.string.lastStatus),
                     modifier = Modifier.padding(end = 10.dp),
                     tint =if (primaryColor) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSecondaryContainer,
                 )
 
-                Text(text = serviceRequest?.lastStatus?.visibleName?:"",
+                 Text(text =  stringResource(id = serviceRequest?.lastStatus?.title?:0),
                     color = if (primaryColor) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSecondaryContainer,
                     modifier = Modifier.padding(0.dp))
             }
-            SecondaryText(text = "End date", modifier = Modifier.padding(horizontal = 35.dp))
+            SecondaryText(text = stringResource(id = R.string.endDate), modifier = Modifier.padding(horizontal = 35.dp))
             Row(Modifier.padding(vertical = 3.dp)){
                 // Placeholder for end date icon
                 Icon(
@@ -782,11 +787,11 @@ fun ServiceRequestIcons(
                     tint = if (primaryColor) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSecondaryContainer,
                 )
 
-                Text(text = if(serviceRequest?.endDate!=null)formatDateToReadableLocaleToString(serviceRequest.endDate) else "No end date",
+                Text(text = if(serviceRequest?.endDate!=null)formatDateToReadableLocaleToString(serviceRequest.endDate) else stringResource(id = R.string.noEndDate),
                     color = if (primaryColor) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSecondaryContainer,
                     modifier = Modifier.padding(0.dp))
             }
-            SecondaryText(text = "Start date", modifier = Modifier.padding(horizontal = 35.dp))
+            SecondaryText(text = stringResource(id = R.string.startDate), modifier = Modifier.padding(horizontal = 35.dp))
             Row(Modifier.padding(vertical = 3.dp)){
                 // Placeholder for start date icon
                 Icon(
@@ -800,7 +805,7 @@ fun ServiceRequestIcons(
                     color = if (primaryColor) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSecondaryContainer,
                     modifier = Modifier.padding(0.dp))
             }
-            SecondaryText(text = "Price", modifier = Modifier.padding(horizontal = 35.dp))
+            SecondaryText(text = stringResource(id = R.string.price), modifier = Modifier.padding(horizontal = 35.dp))
             Row(Modifier.padding(vertical = 3.dp)){
                 // Placeholder for price icon
                 Icon(
@@ -810,7 +815,7 @@ fun ServiceRequestIcons(
                     tint = if (primaryColor) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSecondaryContainer,
                 )
 
-                Text(text = if(serviceRequest?.price==0L)"No price" else serviceRequest?.price.toString(),
+                Text(text = if(serviceRequest?.price==0L)stringResource(id = R.string.noPrice) else serviceRequest?.price.toString(),
                     color = if (primaryColor) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSecondaryContainer,
                     modifier = Modifier.padding(0.dp))
             }
@@ -842,7 +847,7 @@ fun StatusHistoryIcons(
         propagateMinConstraints = true
     ) {
         Column(modifier = Modifier.padding(10.dp)) {
-            SecondaryText(text = "Status", modifier = Modifier.padding(horizontal = 35.dp))
+            SecondaryText(text = stringResource(id = R.string.status), modifier = Modifier.padding(horizontal = 35.dp))
             Row(Modifier.padding(vertical = 3.dp)) {
                 // Placeholder for description icon
                 Icon(
@@ -851,8 +856,9 @@ fun StatusHistoryIcons(
                     modifier = Modifier.padding(end = 10.dp),
                     tint = if (primaryColor) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSecondaryContainer,
                 )
+                val status = statusHistory?.status // Replace with the actual status you want to display
 
-                Text(text = statusHistory?.status?.visibleName?:"???",
+                Text(text =  stringResource(id = status?.title?:0),
                     color = if (primaryColor) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSecondaryContainer,
                     modifier = Modifier.padding(0.dp),
                     overflow =  TextOverflow.Ellipsis,
@@ -860,7 +866,7 @@ fun StatusHistoryIcons(
 
                 )
             }
-            SecondaryText(text = "Comment", modifier = Modifier.padding(horizontal = 35.dp))
+            SecondaryText(text = stringResource(id = R.string.comment), modifier = Modifier.padding(horizontal = 35.dp))
             Row(Modifier.padding(vertical = 3.dp)){
                 // Placeholder for last status icon
                 Icon(
@@ -874,7 +880,7 @@ fun StatusHistoryIcons(
                     color = if (primaryColor) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSecondaryContainer,
                     modifier = Modifier.padding(0.dp))
             }
-            SecondaryText(text = "End date", modifier = Modifier.padding(horizontal = 35.dp))
+            SecondaryText(text = stringResource(id = R.string.date), modifier = Modifier.padding(horizontal = 35.dp))
             Row(Modifier.padding(vertical = 3.dp)){
                 // Placeholder for end date icon
                 Icon(

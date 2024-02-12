@@ -73,7 +73,7 @@ fun CustomerSummaryScreen(viewModel: CustomerSummaryScreenViewModel, navControll
     val endOfListReached by derivedStateOf {
         listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index == listState.layoutInfo.totalItemsCount - 1
     }
-    val filteredCustomers = customers.filter { it.phoneNumber.toString().startsWith(topBarQuery)  }
+    val filteredCustomers = customers.filter {  it.firstName.startsWith(topBarQuery, ignoreCase = true) ||  it.lastName.startsWith(topBarQuery, ignoreCase = true) || it.phoneNumber.toString().startsWith(topBarQuery, ignoreCase = true)   }
 
     LaunchedEffect(endOfListReached) {
         if (endOfListReached && initialDataLoaded == true && customers.isNotEmpty()) {
@@ -186,33 +186,33 @@ fun CustomerSummaryScreen(viewModel: CustomerSummaryScreenViewModel, navControll
                                                 .height(200.dp) // Set the height as per your requirement
                                                 .background(MaterialTheme.colorScheme.background)
                                         ) {
+//                                            TextButton(
+//                                                onClick = {
+//
+//                                                    showDialog = false
+//                                                },
+//                                                modifier = Modifier
+//                                                    .fillMaxWidth()
+//                                                    .weight(1f)
+//                                            ) {
+//                                                Text("Add status")
+//                                            }
+//                                            TextButton(
+//                                                onClick = {
+//
+//                                                    showDialog = false
+//                                                },
+//                                                modifier = Modifier
+//                                                    .fillMaxWidth()
+//                                                    .weight(1f)
+//
+//
+//                                            ) {
+//                                                Text("Edit")
+//                                            }
                                             TextButton(
                                                 onClick = {
-
-                                                    showDialog = false
-                                                },
-                                                modifier = Modifier
-                                                    .fillMaxWidth()
-                                                    .weight(1f)
-                                            ) {
-                                                Text("Add status")
-                                            }
-                                            TextButton(
-                                                onClick = {
-
-                                                    showDialog = false
-                                                },
-                                                modifier = Modifier
-                                                    .fillMaxWidth()
-                                                    .weight(1f)
-
-
-                                            ) {
-                                                Text("Edit")
-                                            }
-                                            TextButton(
-                                                onClick = {
-
+                                                    viewModel.sharedViewModel.deleteCustomerById(customer.id)
                                                     showDialog = false
                                                 },
                                                 modifier = Modifier

@@ -27,8 +27,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.example.andtest.R
 import com.example.andtest.components.CustomerDevicesIcons
 import com.example.andtest.components.CustomerInfoIcons
 import com.example.andtest.components.DeviceItemIcons
@@ -55,7 +57,7 @@ fun CustomerDetailsScreen(viewModel: CustomerDetailsViewModel, navController: Na
             topBar = {
                 TopAppBar(
                     modifier = Modifier.background(Color.Yellow),
-                    title = { Text("Customer details screen hopefully") },
+                    title = { Text(stringResource(R.string.customerDetails)) },
                     colors = TopAppBarDefaults.topAppBarColors(
                         containerColor = MaterialTheme.colorScheme.surface,
                     ),
@@ -86,7 +88,7 @@ fun CustomerDetailsScreen(viewModel: CustomerDetailsViewModel, navController: Na
 
                                     DeviceItemIcons(
                                         deviceName = device.deviceName,
-                                        deviceType = device.deviceType.visibleName,
+                                        deviceType = stringResource(id = device.deviceType.title),
                                         deviceSerialNumber = device.deviceSerialNumber,
                                         onDeviceClick = { navController.navigate("${Screen.DEVICEDETAILS.name}/${device.deviceSerialNumber}")  },
                                         primaryColor = false

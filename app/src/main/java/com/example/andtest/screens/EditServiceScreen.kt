@@ -8,8 +8,18 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -36,6 +46,7 @@ import com.example.andtest.components.NormalTextComponent
 import com.example.andtest.viewModels.EditServiceScreenViewModel
 
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditService(navController: NavController, viewModel: EditServiceScreenViewModel) {
     val serviceRequest by viewModel.sharedViewModel.sharedServiceRequestEditor.observeAsState()
@@ -57,39 +68,57 @@ fun EditService(navController: NavController, viewModel: EditServiceScreenViewMo
     Surface(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.White)
-            .padding(20.dp)
+            .background(MaterialTheme.colorScheme.background)
+
     ) {
-
-
-
-        Column(modifier = Modifier.fillMaxWidth()) {
-            NormalTextComponent(value = stringResource(id = R.string.hello))
-            BoldTextComponent(value = stringResource(id = R.string.editService))
-            Spacer(modifier = Modifier
-                .fillMaxWidth()
-                .height(30.dp))
-
-
-
-            InputNumberField(labelValue = stringResource(id = R.string.price), data = price)
-            MultiLineInputTextField(labelValue = stringResource(id = R.string.description), data = description, maxLines = 2)
-            Spacer(modifier = Modifier
-                .fillMaxWidth()
-                .height(80.dp))
-            ButtonComponent(
-                labelValue = stringResource(id = R.string.submit ), onClick = {
-                    isLoading.value=true
-                    price.value = price.value.let { if (it == "") "0" else it }
-                    viewModel.editService(
-                        ServiceRequestEditor(description.value,price.value.toLong())
-                    )
+Scaffold(
+    topBar = {
+        TopAppBar(
+            modifier = Modifier.background(MaterialTheme.colorScheme.primaryContainer),
+            title = { Text(stringResource(id = R.string.editService)) },
+            colors = TopAppBarDefaults.topAppBarColors(
+                containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+            ),
+            navigationIcon = {
+                IconButton(onClick = { navController.navigateUp()}) {
+                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                 }
-            )
-            if(isLoading.value){
-                CircularProgressIndicator(modifier = Modifier.align(alignment = Alignment.CenterHorizontally))
             }
+        )
+    }
+
+) {
+    Column(modifier = Modifier.fillMaxWidth().padding(it).padding(20.dp)) {
+//            NormalTextComponent(value = stringResource(id = R.string.hello))
+//        BoldTextComponent(value = stringResource(id = R.string.editService))
+        Spacer(modifier = Modifier
+            .fillMaxWidth()
+            .height(30.dp))
+
+
+
+        InputNumberField(labelValue = stringResource(id = R.string.price), data = price)
+        MultiLineInputTextField(labelValue = stringResource(id = R.string.description), data = description, maxLines = 2)
+        Spacer(modifier = Modifier
+            .fillMaxWidth()
+            .height(80.dp))
+        ButtonComponent(
+            labelValue = stringResource(id = R.string.submit ), onClick = {
+                isLoading.value=true
+                price.value = price.value.let { if (it == "") "0" else it }
+                viewModel.editService(
+                    ServiceRequestEditor(description.value,price.value.toLong())
+                )
+            }
+        )
+        if(isLoading.value){
+            CircularProgressIndicator(modifier = Modifier.align(alignment = Alignment.CenterHorizontally))
         }
+    }
+}
+
+
+
         LaunchedEffect(isSentSuccessfully) {
             when (isSentSuccessfully) {
                 true -> {

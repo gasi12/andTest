@@ -22,6 +22,14 @@ import com.example.andtest.api.dto.UserDto
 import java.time.LocalDateTime
 
 class MockService :ServiceInterface{
+    override fun deleteDeviceById(id: Long, callback: (Boolean) -> Unit) {
+        TODO("Not yet implemented")
+    }
+
+    override fun deleteCustomerById(id: Long, callback: (Boolean) -> Unit) {
+        TODO("Not yet implemented")
+    }
+
     override fun promoteToUser(id: Long, callback: (Boolean) -> Unit) {
         TODO("Not yet implemented")
     }
